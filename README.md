@@ -1,3 +1,11 @@
+<div align="center">
+  <p>
+    <a href="https://icaerus.eu" target="_blank">
+      <img width="50%" src="https://icaerus.eu/wp-content/uploads/2022/09/ICAERUS-logo-white.svg"></a>
+  </p>
+
+[English](README.md) | 
+
 # uavgeo ⛰️ 
 UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. Building upon the efforts in the `zen3geo` python package: UAV data import/export (raw images and ortho), image chipping (with and without spatial coordinates), spectral analysis (index and products calculation), (Deep) model training and visualization is (going to be) implemented in `uavgeo`. 
 
