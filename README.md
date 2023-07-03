@@ -42,18 +42,21 @@ markdown
         pip install zen3geo ultralytics
         ```
 2. Install this package (for now: pre-pip and conda setup.)
-        ```bash
+   ```bash
        git clone https://github.com/jurriandoornbos/uavgeo.git
        cd uavgeo
        pip install -e .
-        ```
+   ```
 ##### Option B: Setup through Docker:
-* Linux/Ubuntu: `sudo docker run --rm -it --runtime=nvidia -p 8888:8888 --gpus 1 --shm-size=5gb --network=host -v /path_to_local/dir:/home/jovyan jurrain/drone-ml:gpu-torch11.8-zenformers`
+This starts a premade jupyter environment with everything preinstalled, based around a nvidia docker image for DL support.
+* Linux/Ubuntu:
+  ```bash
+  sudo docker run --rm -it --runtime=nvidia -p 8888:8888 --gpus 1 --shm-size=5gb --network=host -v /path_to_local/dir:/home/jovyan jurrain/drone-ml:gpu-torch11.8-zenformers
+  ```
 
 `--network=host` flag whether you want to run it on a different machine in the same network, and want to access the notebook.
 
 `-v` flag makes sure that once downloaded, it stays in that folder, accessible from the PC, and when restarting, all the weights etc. remain in that folder.
 
-* Windows: `docker run --rm -it --gpus 1 --shm-size=5gb -p 8888:8888 -v /path_to_local_dir:/home/jovyan jurrain/drone-ml:gpu-torch11.8-zenformers`
-Make sure you have the latest NVIDIA drivers +  WSL2 is installed and the WSL2-Ubuntu has the nvidia-cuda-toolkit.
-`docker run --rm -it --gpus 1 --shm-size=5gb -p 8888:8888 -v .\transformer_labels:/home/jovyan jurrain/drone-ml:gpu-torch11.1-glipsam`
+* Windows requires WSL2 and NVIDIA drivers, WSL2 should also have the nvidia toolkit (for deep learning)
+
