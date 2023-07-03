@@ -42,7 +42,7 @@ markdown
    ```
 1.   Install the required dependencies:
 
-        Using conda:
+        Using conda (not recommended):
 
         ```bash
         conda install -c conda-forge zen3geo ultralytics
