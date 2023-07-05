@@ -15,8 +15,8 @@ UAV image analysis is a powerful tool to gain valuable insights into the rural, 
 
 - [ ] Import and export drone images (and labels)
 - [ ] Spectral analysis:
-  - [ ] Index calculation
-  - [ ] Product calculation (CHM, LAI)
+  - [x] Index calculation
+  - [ ] Product calculation (CHM [x], LAI [ ])
 - [ ] Deep Learning Pipeline:
   - [ ] Chip images
   - [ ] Data augmentation
