@@ -38,7 +38,7 @@ ortho.plot.imshow()
 ortho
 ```
 
-When you are working with raw image files, you could also load a whole folder, using the datapipe methods from `torchdata`.
+When you are working with raw image files, you could also load a whole folder, using the datapipe methods from `torchdata` and `zen3geo`.
 
 ```python
 import torchdata
@@ -52,7 +52,10 @@ files = [os.path.join(folder_to_search, item) for item in os.listdir(folder_to_s
 #setup the files inthe datapipe:
 dp = torchdata.datapipes.iter.IterableWrapper(files)
 dp_rio = dp.read_from_rioxarray()
+```
 
+Check the contents in the pipe:
+```python
 it = iter(dp_rio)
 img = next(it)
 #check first item in the pipe
