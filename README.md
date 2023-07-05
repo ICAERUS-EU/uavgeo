@@ -56,7 +56,6 @@ They can be accesses through the `uavgeo.compute` module. All functions expect a
 | MNDWI | `calc_mndwi`     | Modified Normalized Difference Water Index | (G-SWIR)/(GREEN+SWIR) | Water coverage, water content| McFeeters (1996) |
 | AWEIsh | `calc_aweish`     | Automated water extraction index (sh) | B + 2.5 * G - 1.5 * (NIR-SWIR1) - 0.25 * SWIR2 | Water coverage, water content| Fayeisha (2014) |
 | AWEInsh | `calc_aweinsh`     | Automated water extraction index (nsh) | 4 * (G - SWIR1) - (0.25 * NIR + 2.75* SWIR1) | Water coverage, water content| Fayeisha (2014) |
-|-------|----------------|-------------|---------|----------------|------------|
 
 #### Custom/other spectral index:
 You could also write your own index calculators, according to the following template:
