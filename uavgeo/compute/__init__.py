@@ -1,6 +1,6 @@
 """
-Iterable-style DataPipes for geospatial raster 🌈 data.
+Supporting functions and copmutation for for geospatial raster 🌈 data.
 """
 
-from indices import *
-from products import *
+from .indices import *
+from .products import *

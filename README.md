@@ -45,11 +45,11 @@ markdown
         Using conda (not recommended):
 
         ```bash
-        conda install -c conda-forge zen3geo ultralytics
+        conda install -c conda-forge zen3geo ultralytics xbatcher bboxconverter
         ```
         Using pip:
         ```bash
-        pip install zen3geo ultralytics
+        pip install -f requirements.txt
         ```
 2. Install this package (for now: pre-pip and conda setup.)
    ```bash

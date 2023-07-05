@@ -27,8 +27,9 @@ def calc_vineyard_lai() -> xr.DataArray:
     Velez et al. 2021 proposed a LAI method specifically for Vineyards and UAVs.
 
     """
+    raise NotImplementedError()
 
-def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray, red_id=1, nir_id=2, ndvi_v, ndvi_s, k) -> xr.DataArray:
+def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray,ndvi_v, ndvi_s, k, red_id=1, nir_id=2) -> xr.DataArray:
     """
     Based on https://link.springer.com/article/10.1007/s11119-023-09993-9#Sec17
     Furlanetto et al. 2023 proposed a LAI method specifically for Maize crop
@@ -44,4 +45,6 @@ def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray, red_id=1, nir_id=2, ndvi_
     
     fvc = (ndvi-ndvi_s)/(ndvi_v-ndvi_s)
     lai = (-ln(1-fvc))/k
+
+    raise NotImplementedError()
 
