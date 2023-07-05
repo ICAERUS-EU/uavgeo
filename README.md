@@ -24,7 +24,54 @@ UAV image analysis is a powerful tool to gain valuable insights into the rural, 
 ## Usage
 The `uavgeo` package can be installed through `pip` or `conda` (in the conda forge channel). Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
 
-### Implemented indices:
+### Loading data:
+`rioxarray` already has many handlers for dealing with various geospatial data, and should be used for importing:
+
+```python
+# loading your orthomosaic file:
+import rioxarray as rx
+# Relative path in the 'data' folder:
+f = "data/my_ortho_output.tif"
+ortho = rx.open_rasterio(filename = f, default_name = "ortho")
+ortho.plot.imshow()
+#check all the variables inside the ortho
+ortho
+```
+
+When you are working with raw image files, you could also load a whole folder, using the datapipe methods from `torchdata`.
+
+```python
+import torchdata
+import os
+import zen3geo
+
+#for example straight from a UAV flight folder
+folder_to_search = "data/raw"
+files = [os.path.join(folder_to_search, item) for item in os.listdir(folder_to_search)]
+
+#setup the files inthe datapipe:
+dp = torchdata.datapipes.iter.IterableWrapper(files)
+dp_rio = dp.read_from_rioxarray()
+
+it = iter(dp_rio)
+img = next(it)
+#check first item in the pipe
+img
+#plot this image
+img.plot.imshow()
+```
+
+### Index calculations
+You can use it to calculate a variety of indices from your imagery:
+```python
+# assuming you already loaded your data as ortho:
+import uavgeo as ug
+
+savi  = ug.compute.calc_savi(bandstack = ortho, red_id=1, nir_id=4, l = 0.51)
+savi.plot.imshow(cmap = "greens")
+```
+
+#### Implemented indices:
 Based on the list from [FieldImageR](https://www.opendronemap.org/fieldimager/). With some additional indices added.
 They can be accesses through the `uavgeo.compute` module. All functions expect a `bandstack`, which is an `xarray.DataArray`wityh multiple bands as`bands` data. And the required bands ids, eg.: `red_id=1`. By default the functions rescale the output floats back to uint8 (0-255). This behaviour can be turned of with the `rescale = False` parameter.
 
@@ -61,7 +108,6 @@ They can be accesses through the `uavgeo.compute` module. All functions expect a
 You could also write your own index calculators, according to the following template:
 
 ```python
-
 def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     
     ds_b = bandstack.astype(float)
@@ -73,7 +119,6 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     if rescale:
         custom = uavgeo.compute.rescale_floats(custom)
     return custom
-
 ```
 
 
