@@ -3,8 +3,6 @@
     <a href="https://icaerus.eu" target="_blank">
       <img width="50%" src="https://icaerus.eu/wp-content/uploads/2022/09/ICAERUS-logo-white.svg"></a>
   </p>
-
-[English](README.md) | 
 </div>
 
 # uavgeo ⛰️ 
@@ -74,7 +72,7 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     custom = a/b+1
     custom.name = "custom index"
     if rescale:
-        custom = rescale_floats(custom)
+        custom = uavgeo.compute.rescale_floats(custom)
     return custom
 
 ```
