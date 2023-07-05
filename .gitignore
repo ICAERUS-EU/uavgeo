@@ -77,6 +77,11 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+.jupyter
+
+# Docker Runs
+.local
+.bash_history
 
 # IPython
 profile_default/

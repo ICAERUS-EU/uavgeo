@@ -505,3 +505,13 @@ def calc_aweinsh(bandstack:xr.DataArray, green_id=2, nir_id=3, swir1_id=4,rescal
     if rescale:
         awei = rescale_floats(awei)
     return awei
+
+def calc_custom(bandstack:xr.DataArray, func, rescale=True):
+    
+    ds_b = bandstack.astype(float)
+
+    custom = func(ds_b)
+    
+    if rescale:
+        custom = rescale_floats(custom)
+    return custom
