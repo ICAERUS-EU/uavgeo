@@ -5,7 +5,7 @@
     <h3 align="center">uavgeo ⛰️</h3>
     
    <p align="center">
-    A UAV-specific image processing library built upon <i>xarray</i> and <i>zen3geo</i>.
+    A UAV-specific Python image processing library built upon <i>xarray</i> and <i>zen3geo</i>.
     <br/>
     <br/>
     <a href="https://github.com/jurriandoornbos/uavgeo/wiki"><strong>Explore the wiki »</strong></a>
