@@ -146,6 +146,8 @@ They can be accesses through the `uavgeo.compute` module. All functions expect a
 You could also write your own index calculators, according to the following template:
 
 ```python
+from uavgeo.compute import rescale_floats
+
 def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     
     ds_b = bandstack.astype(float)
@@ -155,7 +157,7 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     custom = a/b+1
     custom.name = "custom index"
     if rescale:
-        custom = uavgeo.compute.rescale_floats(custom)
+        custom = rescale_floats(custom)
     return custom
 ```
 
