@@ -49,7 +49,7 @@ The `uavgeo` package can be installed through `pip` or `conda` (in the conda for
 ### Downloading data from the web:
 `uavgeo.load` has a `download` function that downloads something from the web and stores it into a `data` (by default). 
 
-```
+```python
 import uavgeo as ug
 # default behaviour only requires a URL, but output filepath and names can be manipulated with  "output_dir", "filename" and "type"
 
