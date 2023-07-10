@@ -2,10 +2,32 @@
   <p>
     <a href="https://icaerus.eu" target="_blank">
       <img width="50%" src="https://icaerus.eu/wp-content/uploads/2022/09/ICAERUS-logo-white.svg"></a>
+    <h3 align="center">uavgeo ⛰️</h3>
+    
+   <p align="center">
+    A UAV-specific Python image processing library built upon <i>xarray</i> and <i>zen3geo</i>.
+    <br/>
+    <br/>
+    <a href="https://github.com/jurriandoornbos/uavgeo/wiki"><strong>Explore the wiki »</strong></a>
+    <br/>
+    <br/>
+    <a href="https://github.com/jurriandoornbos/uavgeo/issues">Report Bug</a>
+    .
+    <a href="https://github.com/jurriandoornbos/uavgeo/issues">Request Feature</a>
   </p>
+</p>
 </div>
 
-# uavgeo ⛰️ 
+![Downloads](https://img.shields.io/github/downloads/jurriandoornbos/uavgeo/total) ![Contributors](https://img.shields.io/github/contributors/jurriandoornbos/uavgeo?color=dark-green) ![Forks](https://img.shields.io/github/forks/jurriandoornbos/uavgeo?style=social) ![Stargazers](https://img.shields.io/github/stars/jurriandoornbos/uavgeo?style=social) ![Issues](https://img.shields.io/github/issues/jurriandoornbos/uavgeo) ![License](https://img.shields.io/github/license/jurriandoornbos/uavgeo) 
+
+## Table Of Contents
+
+* [Summary](#summary)
+* [Features](#features)
+* [Usage](#usage)
+* [Installation](#installation)
+  
+## Summary
 UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. This package serves to bridge the gap in image processing and machine learning in UAV applications. It builds upon the efforts in the `zen3geo` packages: which implements `xarray` datapipelines from PyTorch. As well as introduces computations that are often performed in UAV analysis: spectral indices, CHM, etc. It covers UAV data import/export (raw images, ortho, and labels), image chipping (with and without spatial coordinates), spectral analysis (index and products calculation), (Deep) model training and visualization.
 
 ## Features
@@ -142,6 +164,8 @@ They can be accesses through the `uavgeo.compute` module. All functions expect a
 You could also write your own index calculators, according to the following template:
 
 ```python
+from uavgeo.compute import rescale_floats
+
 def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     
     ds_b = bandstack.astype(float)
@@ -151,7 +175,7 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     custom = a/b+1
     custom.name = "custom index"
     if rescale:
-        custom = uavgeo.compute.rescale_floats(custom)
+        custom = rescale_floats(custom)
     return custom
 ```
 
@@ -198,6 +222,8 @@ This starts a premade jupyter environment with everything preinstalled, based ar
 `-v` flag makes sure that once downloaded, it stays in that folder, accessible from the PC, and when restarting, all the weights etc. remain in that folder. `path_to_local/dir` is thew path to your working dir where you want to access the notebook from. can be `.` if you already `cd`ed into it.
 
 ` --runtime=nvidia` can be skipped when working on WSL2
+
+
 
 * Windows requires WSL2 and NVIDIA drivers, WSL2 should also have the nvidia toolkit (for deep learning)
 
