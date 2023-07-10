@@ -1,5 +1,5 @@
 """
-Supporting functions and copmutation for for geospatial raster 🌈 data.
+Supporting functions and computation for geospatial raster 🌈 data.
 """
 
 from .indices import *

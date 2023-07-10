@@ -2,4 +2,6 @@ zen3geo
 ultralytics
 xbatcher
 bboxconverter
-
+tqdm
+urrlib
+shutil

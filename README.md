@@ -24,6 +24,24 @@ UAV image analysis is a powerful tool to gain valuable insights into the rural, 
 ## Usage
 The `uavgeo` package can be installed through `pip` or `conda` (in the conda forge channel). Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
 
+### Downloading data from the web:
+`uavgeo.load` has a `download` function that downloads something from the web and stores it into a `data` (by default). 
+
+```
+import uavgeo as ug
+# default behaviour only requires a URL, but output filepath and names can be manipulated with  "output_dir", "filename" and "type"
+
+output_rgb_ortho = ug.load.download("https://zenodo.org/record/8123870/files/ORTHOMOSAIC_230421.jpg", filename = "rgb_ortho.jpg", redownload=True)
+# returns: "data/rgb_ortho.jpg" and the file is downloaded 
+
+# it can also download compressed files (.zip, etc.), and automatically extracts them:
+
+output_zip = ug.load.download("https://zenodo.org/record/8123870/files/Vineyard_Canyelles_230421.zip", output_dir = "data_canyelles", type = "raw_imgs")
+
+# returns "data_canyelles/raw_imgs/Vineyard_Canyelles_230421.zip" : but also extracted it to the data_canyelles/raw_imgs/ folder
+```
+
+
 ### Importing data:
 `rioxarray` already has many handlers for dealing with various geospatial data, and should be used for importing:
 
