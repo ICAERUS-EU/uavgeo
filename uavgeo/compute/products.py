@@ -9,7 +9,7 @@ def rescale_floats(arr) -> xr.DataArray:
     """
     return ((arr - arr.min()) * (1/(arr.max() - arr.min()) * 255)).astype('uint8',casting = "unsafe")
 
-def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray) -> xr.DataArray:
+def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray, rescale=False) -> xr.DataArray:
     """
     Calculates the Canopy Height model from inputs Surface (dsm) and Terrain model (dtm)
 
@@ -17,8 +17,12 @@ def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray) -> xr.DataArray:
     The canopy height model (CHM) represents the HEIGHT of the trees. This is not an elevation value, rather it’s the height or distance between the ground and the top of the trees (or buildings or whatever object that the lidar system detected and recorded).
     Some canopy height models also include buildings, so you need to look closely at your data to make sure it was properly cleaned before assuming it represents all trees!
     """
-    chm = dsm-dtm
+    dtm_a = dtm.astype(float)
+    dsm_a = dsm.astype(float)
+    chm = dsm_a-dtm_a
     chm.name = "chm"
+    if rescale:
+        chm = rescale_floats(chm)
     return chm
 
 def calc_vineyard_lai() -> xr.DataArray:
