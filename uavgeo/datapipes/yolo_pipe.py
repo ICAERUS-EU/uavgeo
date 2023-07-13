@@ -258,8 +258,17 @@ class GPDGeomRectangleClipperIterDataPipe(IterDataPipe):
             for chip in raster.batch.generator(input_dims=self.input_dims, **self.kwargs):
                 bounds = chip.rio.bounds()
                 clipped_gdf = df.clip(mask=bounds)
+                # Now that all the chips are in their image-coordinates (e.g. chip 2 has bounds box of (256, 768,  0, 512)) 
+                # We will reset them to all be in their own image coordinates (0,512,0,512), using an Affine translation
+                # get the transform of raster
                 tf = chip.rio.transform()
-                clipped_gdf.geometry = clipped_gdf.translate(xoff = -1 * tf.xoff, yoff = -1 * tf.yoff)
+                # inverse those values
+                inv_xoff = -1 * tf.xoff
+                inv_yoff = -1 * tf.yoff
+                # translate the bounding box geometry:
+                clipped_gdf.geometry = clipped_gdf.translate(xoff = inv_xoff , yoff = inv_yoff )
+                # translate the raster/chip coordinates:
+                chip = chip.assign_coords(x= (chip.x+inv_xoff), y= (chip.y+inv_yoff))
                 yield chip, clipped_gdf 
 
 @functional_datapipe("save_image_and_label")
@@ -385,6 +394,8 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
         self,
         source_datapipe: IterDataPipe,
         output_path: str,
+        skip_empty: bool = True,
+        img_ext: str = ".png",
         **kwargs: Optional[Dict[str, Any]],
     ) -> None:
         if gpd is None:
@@ -395,8 +406,11 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
                 "to install the package"
             )
         self.source_datapipe: IterDataPipe = source_datapipe
-        self.kwargs = kwargs
         self.output_path = output_path
+        self.skip_empty = skip_empty
+        self.img_ext = img_ext
+        self.kwargs = kwargs
+
 
     def __iter__(self) -> Iterator:
         i = 0
@@ -413,8 +427,11 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
         for raster, df in self.source_datapipe:
             number = "{:07d}" .format(i)
 
-            r_filename = os.path.join(r_filepath, number+".png" )
+            r_filename = os.path.join(r_filepath, number+self.img_ext)
             l_filename = os.path.join(l_filepath, number+".txt" )
+            
+            if len(df)<1 and self.skip_empty:
+                continue
             
             raster.rio.to_raster(r_filename)
             self.save_gdf_to_yolo(gdf = df, path = l_filename, shape = raster.shape)
