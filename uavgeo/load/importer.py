@@ -8,7 +8,7 @@ def load_sfm(path_to_file = None, xr_name = "rgb_ortho"):
     if path_to_file is None:
         path_to_file = "data/rgb/sfm/ortho.tif"
     f = rx.open_rasterio(path_to_file, default_name = xr_name)
-    return 
+    return f
 
 def print_files(startpath):
     for root, dirs, files in os.walk(startpath):
