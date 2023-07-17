@@ -1,7 +1,6 @@
 import os
 import rioxarray as rx
 import torchdata
-import image_bbox_slicer
 
 
 def load_sfm(path_to_file = None, xr_name = "rgb_ortho"):

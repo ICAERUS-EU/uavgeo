@@ -3,11 +3,11 @@ import numpy as np
 import math
     
 
-def rescale_floats(arr) -> xr.DataArray:
+def rescale_floats(arr, scaling=255, dtype ='uint8') -> xr.DataArray:
     """
-    rescales the input values to fit within min-mac of 0 to 255
+    rescales the input values to fit within min-mac of 0 to scaling (255)m therefore converted to UInt8 (0-255)
     """
-    return ((arr - arr.min()) * (1/(arr.max() - arr.min()) * 255)).astype('uint8',casting = "unsafe")
+    return ((arr - arr.min()) * (1/(arr.max() - arr.min()) * scaling)).astype(dtype,casting = "unsafe")
 
 def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray, rescale=False) -> xr.DataArray:
     """

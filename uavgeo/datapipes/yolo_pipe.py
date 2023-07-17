@@ -17,10 +17,11 @@ except ImportError:
     gpd = None
 
 from shapely import box
-def start_pipe(iterable):
-    return IterableWrapper(iterable=iterable)
 import torch
 import os
+
+def start_pipe(iterable):
+    return IterableWrapper(iterable=iterable)
 
 @functional_datapipe("parse_yolo")
 class YoloLoaderIterDataPipe(IterDataPipe):

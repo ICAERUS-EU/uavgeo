@@ -1,7 +1,11 @@
-zen3geo
+torchdata
+numpy
+geopandas
+xarray
+rioxarray
+xbatcher
 ultralytics
 xbatcher
-bboxconverter
 tqdm
 urrlib
 shutil
