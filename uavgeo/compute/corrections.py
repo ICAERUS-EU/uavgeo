@@ -280,9 +280,7 @@ def scale_to_uint8(arr,bins=256,dtype=np.uint8):
     Returns:
         ndarray: Scaled array with values in the range of uint8.
     """
-
-    arr = (arr// bins).astype(dtype)
-    return arr
+    return (arr// bins).astype(dtype)
 
 def scale_to_01(arr,max=255):
     """
@@ -295,5 +293,5 @@ def scale_to_01(arr,max=255):
     Returns:
         ndarray: Scaled array with values in the range of 0-1.
     """
-    arr = arr.astype(np.float16)/max
-    return arr
+
+    return arr.astype(np.float16)/max

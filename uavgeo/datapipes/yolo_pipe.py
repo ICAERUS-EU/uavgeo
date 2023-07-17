@@ -19,12 +19,40 @@ except ImportError:
 from shapely import box
 import torch
 import os
+try:
+    import xbatcher
+except ImportError:
+    xbatcher = None 
+try:
+    import rasterio
+except ImportError:
+    rasterio = None
 
 def start_pipe(iterable):
     return IterableWrapper(iterable=iterable)
 
 @functional_datapipe("parse_yolo")
 class YoloLoaderIterDataPipe(IterDataPipe):
+    """
+    DataPipe class for loading YOLO detection results from strings (such as loaded from parse_csv()).
+
+    Args:
+        source_datapipe (IterDataPipe): The source data pipe providing filenames and YOLO bounding box data.
+        **kwargs: Optional keyword arguments.
+
+    Raises:
+        ModuleNotFoundError: If the `pandas` package is not installed.
+
+    Yields:
+        pandas.DataFrame: A DataFrame containing the YOLO detection results for each unique file.
+
+    Examples:
+        >>> source_datapipe = ...
+        >>> yolo_loader = YoloLoaderIterDataPipe(source_datapipe) # or parse_yolo(source_datapipe)
+        >>> for data in yolo_loader:
+        >>>     print(data)
+    """
+
     def __init__(
         self,
         source_datapipe: IterDataPipe,
@@ -40,6 +68,12 @@ class YoloLoaderIterDataPipe(IterDataPipe):
         self.kwargs = kwargs
 
     def __iter__(self) -> Iterator:
+        """
+        Iterate over the YOLO detection results.
+
+        Yields:
+            pandas.DataFrame: A DataFrame containing the YOLO detection results for each unique file.
+        """
 
         l = list(self.source_datapipe)
         df = pd.DataFrame() 
@@ -61,16 +95,39 @@ class YoloLoaderIterDataPipe(IterDataPipe):
         
 @functional_datapipe("yolobox_to_gpd")
 class YoloBoxToTorchIterDataPipe(IterDataPipe):
+    """
+    DataPipe class for converting YOLO bounding boxes to GeoPandas GeoDataFrames.
+
+    Args:
+        source_datapipe (IterDataPipe): The source data pipe providing YOLO bounding box labels.
+        image_datapipe (IterDataPipe): The data pipe providing the input images.
+        **kwargs: Optional keyword arguments.
+
+    Raises:
+        ModuleNotFoundError: If the `geopandas` package is not installed.
+
+    Yields:
+        Tuple[xr.DataArray, geopandas.GeoDataFrame]: A tuple containing the input image and corresponding GeoPandas GeoDataFrame.
+
+    Examples:
+        >>> source_datapipe = ...
+        >>> image_datapipe = ...
+        >>> yolo_to_gpd = YoloBoxToTorchIterDataPipe(source_datapipe, image_datapipe) # or yolobox_to_gpd(source_datapipe, image_datapipe)
+        >>> for img, geodf in yolo_to_gpd:
+        >>>     print(img, geodf)
+    """
+
+ 
     def __init__(
         self,
         source_datapipe: IterDataPipe,
         image_datapipe: IterDataPipe[Union[xr.DataArray, xr. Dataset]],
         **kwargs: Optional[Dict[str, Any]]) -> None:
-        if pd is None:
+        if gpd is None:
             raise ModuleNotFoundError(
-                "Package `pandas` is required to be installed to use this datapipe. "
-                "Please use `pip install pandas` or "
-                "`conda install -c conda-forge pandas` "
+                "Package `geopandas` is required to be installed to use this datapipe. "
+                "Please use `pip install geopandas` or "
+                "`conda install -c conda-forge geopandas` "
                 "to install the package"
                 )
         self.source_datapipe: IterDataPipe = source_datapipe
@@ -79,6 +136,12 @@ class YoloBoxToTorchIterDataPipe(IterDataPipe):
         self.kwargs = kwargs
 
     def __iter__(self) -> Iterator:
+        """
+        Iterate over the converted YOLO bounding boxes and images.
+
+        Yields:
+            Tuple[xr.DataArray, geopandas.GeoDataFrame]: A tuple containing the input image and corresponding GeoPandas GeoDataFrame.
+        """
 
         for img, label in zip(self.image_datapipe, self.source_datapipe):
 
@@ -119,120 +182,33 @@ class YoloBoxToTorchIterDataPipe(IterDataPipe):
 @functional_datapipe("chip_image_and_label")
 class GPDGeomRectangleClipperIterDataPipe(IterDataPipe):
     """
-    Takes vector :py:class:`geopandas.GeoSeries` or
-    :py:class:`geopandas.GeoDataFrame` geometries and clips them with the
-    rectangular extent of an :py:class:`xarray.DataArray` or
-    :py:class:`xarray.Dataset` grid to yield tuples of spatially subsetted
-    :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`
-    vectors and the correponding :py:class:`xarray.DataArray` or
-    :py:class:`xarray.Dataset` raster object used as the clip mask (functional
-    name: ``clip_vector_with_rectangle``).
+    xbatcher is uised to clip the input raster to the correct amount of chips.
 
     Uses the rectangular clip algorithm of :py:func:`geopandas.clip`, with the
     bounding box rectangle (minx, miny, maxx, maxy) derived from input raster
     mask's bounding box extent.
 
-    Note
-    ----
-    If the input vector's coordinate reference system (``crs``) is different to
-    the raster mask's coordinate reference system (``rio.crs``), the vector
-    will be reprojected using :py:meth:`geopandas.GeoDataFrame.to_crs` to match
-    the raster's coordinate reference system.
+    Then transforms all the resulting coordinates to the local-image coordinates:
+    # Now that all the chips are in their image-coordinates (e.g. chip 2 has bounds box of (256, 768,  0, 512)) 
+    # We will reset them to all be in their own image coordinates (0,512,0,512), using an Affine translation
 
-    Parameters
-    ----------
-    source_datapipe : IterDataPipe[geopandas.GeoDataFrame]
-        A DataPipe that contains :py:class:`geopandas.GeoSeries` or
-        :py:class:`geopandas.GeoDataFrame` vector geometries with a
-        :py:attr:`.crs <geopandas.GeoDataFrame.crs>` property.
+    Args:
+        source_datapipe (IterDataPipe): The source data pipe providing raster and GeoDataFrame pairs: (raster, gdf)
+        input_dims (Dict[Hashable, int]): The input dimensions for generating chips.
+        **kwargs: Optional keyword arguments.
 
-    mask_datapipe : IterDataPipe[xarray.DataArray]
-        A DataPipe that contains :py:class:`xarray.DataArray` or
-        :py:class:`xarray.Dataset` objects with a
-        :py:attr:`.rio.crs <rioxarray.rioxarray.XRasterBase.crs>` property and
-        :py:meth:`.rio.bounds <rioxarray.rioxarray.XRasterBase.bounds>` method.
+    Raises:
+        ModuleNotFoundError: If the `geopandas` or `xbatcher` package is not installed.
 
-    kwargs : Optional
-        Extra keyword arguments to pass to :py:func:`geopandas.clip`.
+    Yields:
+        Tuple[xr.DataArray, geopandas.GeoDataFrame]: A tuple containing the clipped chip and corresponding clipped GeoDataFrame.
 
-    Yields
-    ------
-    paired_obj : Tuple[geopandas.GeoDataFrame, xarray.DataArray]
-        A tuple consisting of the spatially subsetted
-        :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`
-        vector, and the corresponding :py:class:`xarray.DataArray` or
-        :py:class:`xarray.Dataset` raster used as the clip mask.
-
-    Raises
-    ------
-    ModuleNotFoundError
-        If ``geopandas`` is not installed. See
-        :doc:`install instructions for geopandas <geopandas:getting_started/install>`
-        (e.g. via ``pip install geopandas``) before using this class.
-
-    NotImplementedError
-        If the length of the vector ``source_datapipe`` is not 1. Currently,
-        all of the vector geometries have to be merged into a single
-        :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`.
-        Refer to the section on Appending under geopandas'
-        :doc:`geopandas:docs/user_guide/mergingdata` docs.
-
-    Example
-    -------
-    >>> import pytest
-    >>> import rioxarray
-    >>> gpd = pytest.importorskip("geopandas")
-    ...
-    >>> from torchdata.datapipes.iter import IterableWrapper
-    >>> from zen3geo.datapipes import GeoPandasRectangleClipper
-    ...
-    >>> # Read in a vector polygon data source
-    >>> geodataframe = gpd.read_file(
-    ...     filename="https://github.com/geopandas/geopandas/raw/v0.11.1/geopandas/tests/data/overlay/polys/df1.geojson",
-    ... )
-    >>> assert geodataframe.crs == "EPSG:4326"  # latitude/longitude coords
-    >>> dp_vector = IterableWrapper(iterable=[geodataframe])
-    ...
-    >>> # Get list of raster grids to cut up the vector polygon later
-    >>> dataarray = rioxarray.open_rasterio(
-    ...     filename="https://github.com/rasterio/rasterio/raw/1.3.2/tests/data/world.byte.tif"
-    ... )
-    >>> assert dataarray.rio.crs == "EPSG:4326"  # latitude/longitude coords
-    >>> dp_raster = IterableWrapper(
-    ...     iterable=[
-    ...         dataarray.sel(x=slice(0, 2)),  # longitude 0 to 2 degrees
-    ...         dataarray.sel(x=slice(2, 4)),  # longitude 2 to 4 degrees
-    ...     ]
-    ... )
-    ...
-    >>> # Clip vector point geometries based on raster masks
-    >>> dp_clipped = dp_vector.clip_vector_with_rectangle(
-    ...     mask_datapipe=dp_raster
-    ... )
-    ...
-    >>> # Loop or iterate over the DataPipe stream
-    >>> it = iter(dp_clipped)
-    >>> geodataframe0, raster0 = next(it)
-    >>> geodataframe0
-       col1                                           geometry
-    0     1  POLYGON ((0.00000 0.00000, 0.00000 2.00000, 2....
-    >>> raster0
-    <xarray.DataArray (band: 1, y: 1200, x: 16)>
-    array([[[0, 0, ..., 0, 0],
-            [0, 0, ..., 0, 0],
-            ...,
-            [1, 1, ..., 1, 1],
-            [1, 1, ..., 1, 1]]], dtype=uint8)
-    Coordinates:
-      * band         (band) int64 1
-      * x            (x) float64 0.0625 0.1875 0.3125 0.4375 ... 1.688 1.812 1.938
-      * y            (y) float64 74.94 74.81 74.69 74.56 ... -74.69 -74.81 -74.94
-        spatial_ref  int64 0
-    ...
-    >>> geodataframe1, raster1 = next(it)
-    >>> geodataframe1
-       col1                                           geometry
-    1     2  POLYGON ((2.00000 2.00000, 2.00000 4.00000, 4....
+    Examples:
+        >>> source_datapipe = ...
+        >>> input_dims = ...
+        >>> chip_clipper = ChipClipperIterDataPipe(source_datapipe, input_dims)
+        >>> for chip, clipped_gdf in chip_clipper:
+        >>>     print(chip, clipped_gdf)
     """
 
     def __init__(
@@ -247,6 +223,13 @@ class GPDGeomRectangleClipperIterDataPipe(IterDataPipe):
                 "Package `geopandas` is required to be installed to use this datapipe. "
                 "Please use `pip install geopandas` or "
                 "`conda install -c conda-forge geopandas` "
+                "to install the package"
+            )
+        if xbatcher is None:
+            raise ModuleNotFoundError(
+                "Package `xbatcher` is required to be installed to use this datapipe. "
+                "Please use `pip install xbatcher` or "
+                "`conda install -c conda-forge xbatcher` "
                 "to install the package"
             )
         self.source_datapipe: IterDataPipe = source_datapipe
@@ -275,121 +258,29 @@ class GPDGeomRectangleClipperIterDataPipe(IterDataPipe):
 @functional_datapipe("save_image_and_label")
 class ImageLabelSaverIterDataPipe(IterDataPipe):
     """
-    Takes vector :py:class:`geopandas.GeoSeries` or
-    :py:class:`geopandas.GeoDataFrame` geometries and clips them with the
-    rectangular extent of an :py:class:`xarray.DataArray` or
-    :py:class:`xarray.Dataset` grid to yield tuples of spatially subsetted
-    :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`
-    vectors and the correponding :py:class:`xarray.DataArray` or
-    :py:class:`xarray.Dataset` raster object used as the clip mask (functional
-    name: ``clip_vector_with_rectangle``).
+    DataPipe class for saving images and associated labels.
 
-    Uses the rectangular clip algorithm of :py:func:`geopandas.clip`, with the
-    bounding box rectangle (minx, miny, maxx, maxy) derived from input raster
-    mask's bounding box extent.
+    Args:
+        source_datapipe (IterDataPipe): The source data pipe providing raster and GeoDataFrame pairs.
+        output_path (str): The output path to save the images and labels.
+        skip_empty (bool, optional): Flag indicating whether to skip empty GeoDataFrames. Default is True.
+        img_ext (str, optional): The extension of the image files. Default is ".png".
+        **kwargs: Optional keyword arguments.
 
-    Note
-    ----
-    If the input vector's coordinate reference system (``crs``) is different to
-    the raster mask's coordinate reference system (``rio.crs``), the vector
-    will be reprojected using :py:meth:`geopandas.GeoDataFrame.to_crs` to match
-    the raster's coordinate reference system.
+    Raises:
+        ModuleNotFoundError: If the `geopandas` or `rasterio` package is not installed.
 
-    Parameters
-    ----------
-    source_datapipe : IterDataPipe[geopandas.GeoDataFrame]
-        A DataPipe that contains :py:class:`geopandas.GeoSeries` or
-        :py:class:`geopandas.GeoDataFrame` vector geometries with a
-        :py:attr:`.crs <geopandas.GeoDataFrame.crs>` property.
+    Yields:
+        Tuple[xr.DataArray, geopandas.GeoDataFrame]: A tuple containing the original raster and corresponding GeoDataFrame.
 
-    mask_datapipe : IterDataPipe[xarray.DataArray]
-        A DataPipe that contains :py:class:`xarray.DataArray` or
-        :py:class:`xarray.Dataset` objects with a
-        :py:attr:`.rio.crs <rioxarray.rioxarray.XRasterBase.crs>` property and
-        :py:meth:`.rio.bounds <rioxarray.rioxarray.XRasterBase.bounds>` method.
-
-    kwargs : Optional
-        Extra keyword arguments to pass to :py:func:`geopandas.clip`.
-
-    Yields
-    ------
-    paired_obj : Tuple[geopandas.GeoDataFrame, xarray.DataArray]
-        A tuple consisting of the spatially subsetted
-        :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`
-        vector, and the corresponding :py:class:`xarray.DataArray` or
-        :py:class:`xarray.Dataset` raster used as the clip mask.
-
-    Raises
-    ------
-    ModuleNotFoundError
-        If ``geopandas`` is not installed. See
-        :doc:`install instructions for geopandas <geopandas:getting_started/install>`
-        (e.g. via ``pip install geopandas``) before using this class.
-
-    NotImplementedError
-        If the length of the vector ``source_datapipe`` is not 1. Currently,
-        all of the vector geometries have to be merged into a single
-        :py:class:`geopandas.GeoSeries` or :py:class:`geopandas.GeoDataFrame`.
-        Refer to the section on Appending under geopandas'
-        :doc:`geopandas:docs/user_guide/mergingdata` docs.
-
-    Example
-    -------
-    >>> import pytest
-    >>> import rioxarray
-    >>> gpd = pytest.importorskip("geopandas")
-    ...
-    >>> from torchdata.datapipes.iter import IterableWrapper
-    >>> from zen3geo.datapipes import GeoPandasRectangleClipper
-    ...
-    >>> # Read in a vector polygon data source
-    >>> geodataframe = gpd.read_file(
-    ...     filename="https://github.com/geopandas/geopandas/raw/v0.11.1/geopandas/tests/data/overlay/polys/df1.geojson",
-    ... )
-    >>> assert geodataframe.crs == "EPSG:4326"  # latitude/longitude coords
-    >>> dp_vector = IterableWrapper(iterable=[geodataframe])
-    ...
-    >>> # Get list of raster grids to cut up the vector polygon later
-    >>> dataarray = rioxarray.open_rasterio(
-    ...     filename="https://github.com/rasterio/rasterio/raw/1.3.2/tests/data/world.byte.tif"
-    ... )
-    >>> assert dataarray.rio.crs == "EPSG:4326"  # latitude/longitude coords
-    >>> dp_raster = IterableWrapper(
-    ...     iterable=[
-    ...         dataarray.sel(x=slice(0, 2)),  # longitude 0 to 2 degrees
-    ...         dataarray.sel(x=slice(2, 4)),  # longitude 2 to 4 degrees
-    ...     ]
-    ... )
-    ...
-    >>> # Clip vector point geometries based on raster masks
-    >>> dp_clipped = dp_vector.clip_vector_with_rectangle(
-    ...     mask_datapipe=dp_raster
-    ... )
-    ...
-    >>> # Loop or iterate over the DataPipe stream
-    >>> it = iter(dp_clipped)
-    >>> geodataframe0, raster0 = next(it)
-    >>> geodataframe0
-       col1                                           geometry
-    0     1  POLYGON ((0.00000 0.00000, 0.00000 2.00000, 2....
-    >>> raster0
-    <xarray.DataArray (band: 1, y: 1200, x: 16)>
-    array([[[0, 0, ..., 0, 0],
-            [0, 0, ..., 0, 0],
-            ...,
-            [1, 1, ..., 1, 1],
-            [1, 1, ..., 1, 1]]], dtype=uint8)
-    Coordinates:
-      * band         (band) int64 1
-      * x            (x) float64 0.0625 0.1875 0.3125 0.4375 ... 1.688 1.812 1.938
-      * y            (y) float64 74.94 74.81 74.69 74.56 ... -74.69 -74.81 -74.94
-        spatial_ref  int64 0
-    ...
-    >>> geodataframe1, raster1 = next(it)
-    >>> geodataframe1
-       col1                                           geometry
-    1     2  POLYGON ((2.00000 2.00000, 2.00000 4.00000, 4....
+    Examples:
+        >>> source_datapipe = ...
+        >>> output_path = ...
+        >>> image_label_saver = ImageLabelSaverIterDataPipe(source_datapipe, output_path)
+        >>> for raster, df in image_label_saver:
+        >>>     print(raster, df)
     """
+
 
     def __init__(
         self,
@@ -406,6 +297,13 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
                 "`conda install -c conda-forge geopandas` "
                 "to install the package"
             )
+        if rasterio is None:
+            raise ModuleNotFoundError(
+                "Package `rasterio` is required to be installed to use this datapipe. "
+                "Please use `pip install rasterio` or "
+                "`conda install -c conda-forge rasterio` "
+                "to install the package"
+            )
         self.source_datapipe: IterDataPipe = source_datapipe
         self.output_path = output_path
         self.skip_empty = skip_empty
@@ -414,6 +312,12 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
 
 
     def __iter__(self) -> Iterator:
+        """
+        Iterate over the images and labels, and save them to disk.
+
+        Yields:
+            Tuple[xr.DataArray, geopandas.GeoDataFrame]: A tuple containing the original raster and corresponding GeoDataFrame.
+        """
         i = 0
         if not os.path.exists(self.output_path):
             os.mkdir(self.output_path)
@@ -454,6 +358,17 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
     
 
     def convert_to_yolo_batch(self, boxes, img_width, img_height):
+        """
+        Convert bounding box coordinates to YOLO format.
+
+        Args:
+            boxes (torch.Tensor): The bounding box coordinates.
+            img_width (int): The width of the image.
+            img_height (int): The height of the image.
+
+        Returns:
+            torch.Tensor: The bounding box coordinates in YOLO format.
+        """
         # Calculate widths and heights
         widths = boxes[:, 2] - boxes[:, 0]
         heights = boxes[:, 3] - boxes[:, 1]
@@ -473,6 +388,14 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
         return yolo_tensors
 
     def write_yolo_boxes_to_file(self, boxes, labels, file_path):
+        """
+        Write YOLO bounding box coordinates and labels to a text file.
+
+        Args:
+            boxes (torch.Tensor): The bounding box coordinates in YOLO format.
+            labels (List[int]): The labels corresponding to each bounding box.
+            file_path (str): The path to save the text file.
+        """
         with open(file_path, 'w') as f:
             for i in range(boxes.size(0)):
                 yolo_box = boxes[i]
