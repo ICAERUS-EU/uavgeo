@@ -166,3 +166,6 @@ cython_debug/
 
 # Testing stuff:
 notebooks/data
+notebooks/yolov8n.pt
+notebooks/runs
+notebooks/yolo.yaml

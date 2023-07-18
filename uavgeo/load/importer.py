@@ -12,7 +12,7 @@ if rx ==None:
                 "`conda install -c conda-forge rioxarray` "
                 "to install the package"
                 )
-
+import yaml
 
 def load_sfm(path_to_file = None, xr_name = "rgb_ortho"):
     """
@@ -104,3 +104,35 @@ def check_labels_to_imgs(labs, imgs, img_fmt = ".png"):
         expected_img = expected_img.replace(".txt", ".png")
         if expected_img != img:
             print("Found difference between image/label file: expected: {}, found: {}".format(expected_img, img))
+
+def generate_yolo_yaml(local_working_dir, root_folder, output_yaml, class_dict):
+    """
+    Generates a YAML file for YOLO format based on the provided inputs.
+
+    Args:
+        local_working_dir (str): The local working directory path.
+        root_folder (str): The root folder path.
+        output_yaml (str): The output YAML file path to be generated.
+        class_dict (dict): A dictionary mapping class indices to class names.
+
+    Returns:
+        None
+
+    Raises:
+        IOError: If there is an error opening or writing to the output YAML file.
+
+    Example:
+        generate_yolo_yaml('path/to/local_working_dir', 'path/to/root_folder',
+                           'output.yaml', {0: 'class1', 1: 'class2', 2: 'class3'})
+    """
+    # Open the output YAML file for writing
+    data = {
+        "path": local_working_dir,
+        "train": os.path.join(root_folder, "train", "images"),
+        "val": os.path.join(root_folder, "val", "images"),
+        "test": os.path.join(root_folder, "test", "images"),
+        "names": class_dict,
+    }
+    with open(output_yaml, 'w') as file:
+        yaml.dump(data, file)
+    return data
