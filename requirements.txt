@@ -9,3 +9,5 @@ xbatcher
 tqdm
 urrlib
 shutil
+shapely
+torch

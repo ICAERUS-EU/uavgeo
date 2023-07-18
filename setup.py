@@ -1,7 +1,9 @@
 import setuptools
+import unittest
 
 with open("README.md", "r", encoding = 'utf-8') as fh:
     long_description = fh.read()
+
 
 setuptools.setup(
     name="uavgeo",
@@ -13,6 +15,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/jurriandoornbos/uavgeo/",
     packages=setuptools.find_packages(),
+    package_data={'uavgeo': ['tests/*.py'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
@@ -23,4 +27,5 @@ setuptools.setup(
 
     ],
     python_requires='>=3.9',
+    test_suite = 'tests',
 )
