@@ -5,7 +5,7 @@
     <h3 align="center">uavgeo ⛰️</h3>
     
    <p align="center">
-    A UAV-specific Python image processing library built upon <i>xarray</i> and <i>zen3geo</i>.
+    A UAV-specific Python image processing library built upon <i>xarray</i> and <i>geopandas</i>.
     <br/>
     <br/>
     <a href="https://github.com/jurriandoornbos/uavgeo/wiki"><strong>Explore the wiki »</strong></a>
@@ -146,6 +146,7 @@ This library implements it as follows:
 4. export the list of images to file (or do whatever)
 5. (optional): perform the ML modelling on the chips
 6. (optional): reconstruct the images back to the original raster and crs
+
 This whole pipeline and functions are presented in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
 
 ## Installation:
@@ -194,5 +195,3 @@ This starts a premade jupyter environment with everything preinstalled, based ar
 
 
 * Windows requires WSL2 and NVIDIA drivers, WSL2 should also have the nvidia toolkit (for deep learning)
-
-

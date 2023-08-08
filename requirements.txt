@@ -3,9 +3,7 @@ numpy
 geopandas
 xarray
 rioxarray
-xbatcher
 ultralytics
-xbatcher
 tqdm
 urrlib
 shutil
