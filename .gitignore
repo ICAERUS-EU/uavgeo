@@ -169,3 +169,5 @@ notebooks/data
 notebooks/yolov8n.pt
 notebooks/runs
 notebooks/yolo.yaml
+notebooks/*.jpg
+notebooks/*.pt

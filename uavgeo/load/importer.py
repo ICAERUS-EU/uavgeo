@@ -3,7 +3,6 @@ try:
     import rioxarray as rx
 except ImportError:
     rx = None
-import torchdata
 
 if rx ==None:
     raise ModuleNotFoundError(
@@ -13,26 +12,7 @@ if rx ==None:
                 "to install the package"
                 )
 import yaml
-
-def load_sfm(path_to_file = None, xr_name = "rgb_ortho"):
-    """
-    Loads an image from a specified file path using the rioxarray library.
-
-    Args:
-        path_to_file (str, optional): The file path of the satellite image. Default is "data/rgb/sfm/ortho.tif".
-        xr_name (str, optional): The name to assign to the xarray DataArray. Default is "rgb_ortho".
-
-    Returns:
-        xarray.DataArray: The loaded image.
-
-    Examples:
-        >>> img = load_sfm())
-        >>> print(img)
-    """
-    if path_to_file is None:
-        path_to_file = "data/rgb/sfm/ortho.tif"
-    f = rx.open_rasterio(path_to_file, default_name = xr_name)
-    return f
+from rioxarray import merge
 
 def print_files(startpath):
     """
@@ -136,3 +116,4 @@ def generate_yolo_yaml(local_working_dir, root_folder, output_yaml, class_dict):
     with open(output_yaml, 'w') as file:
         yaml.dump(data, file)
     return data
+

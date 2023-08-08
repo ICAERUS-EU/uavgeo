@@ -28,23 +28,22 @@
 * [Installation](#installation)
   
 ## Summary
-UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. This package serves to bridge the gap in image processing and machine learning in UAV applications. It builds upon the efforts in the `zen3geo` packages: which implements `xarray` datapipelines from PyTorch. As well as introduces computations that are often performed in UAV analysis: spectral indices, CHM, etc. It covers UAV data import/export (raw images, ortho, and labels), image chipping (with and without spatial coordinates), spectral analysis (index and products calculation), (Deep) model training and visualization.
+UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. This package serves to bridge the gap in image processing and machine learning in UAV applications. It builds upon the efforts from `xarray`, `rasterio/rioxarray` and `geopandas`. 
+Importing should be done through rioxarray functions. The currently implemented functions in `uavgeo` examples cover index calculation (see below) and data/rastser chipping and reconstruction.
 
 ## Features
 
-- [ ] Import and export drone images (and labels)
 - [ ] Spectral analysis:
   - [x] Index calculation
-  - [ ] Product calculation (CHM [x], LAI [ ])
-- [ ] Visualization
+- [x] Visualization
 - [ ] Deep Learning Pipeline:
-  - [ ] Train/Test/Validation splitting
-  - [ ] Chip images (requires `xbatcher`)
+  - [x] Train/Test/Validation splitting
+  - [x] Chip images
   - [ ] Data augmentation
   - [ ] YOLO (object detection) training and evaluation
 
 ## Usage
-The `uavgeo` package can be installed through `pip` or `conda` (in the conda forge channel). Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
+The `uavgeo` package can be installed through `pip`. Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
 
 ### Downloading data from the web:
 `uavgeo.load` has a `download` function that downloads something from the web and stores it into the folder `data` (by default). 
@@ -75,45 +74,6 @@ ortho.plot.imshow()
 #check all the variables inside the ortho
 ortho
 ```
-
-When you are working with raw image files, you could also load a whole folder, using the datapipe methods from `torchdata` and `zen3geo`.
-
-```python
-import torchdata
-import os
-import zen3geo
-
-#for example straight from a UAV flight folder
-folder_to_search = "data/raw"
-files = [os.path.join(folder_to_search, item) for item in os.listdir(folder_to_search)]
-
-#setup the files inthe datapipe:
-dp = torchdata.datapipes.iter.IterableWrapper(files)
-dp_rio = dp.read_from_rioxarray()
-```
-
-Check the contents in the pipe:
-```python
-it = iter(dp_rio)
-img = next(it)
-#check first item in the pipe
-img
-#plot this image
-img.plot.imshow()
-```
-
-Loading object detection labels from a COCO structure (built on `bboxconverter`):
-
-```python
-```
-
-### Exporting data
-
-Exporting object detection labels to a YOLO structure
-
-```python
-```
-
 
 ### Index calculations
 You can use it to calculate a variety of indices from your imagery:
@@ -180,8 +140,8 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
 
 ## Installation:
 
-It is built upon the work in `zen3geo`, which makes use of `rioxarray` and `pytorch`.
-Additionally, when working with the object detection part, the `ultralytics` library is also a prerequisite.
+It is built upon the work of `rioxarray`,  `geopandas`, `shapely` and a few more: see requirements.txt.
+Additionally, when working with the object detection part, the `ultralytics` and `torch` libraries (`torch`, `torchvision`, `torchdata`) is also a prerequisite.
 You can choose to install everything in a Python virtual environment or directly run a jupyterlab docker:
 
 ##### Option A: Setup directly in python:
@@ -196,11 +156,11 @@ You can choose to install everything in a Python virtual environment or directly
         Using conda (not recommended):
 
         ```bash
-        conda install -c conda-forge zen3geo ultralytics xbatcher bboxconverter
+        conda install -c conda-forge rioxarray geopandas shapely
         ```
         Using pip:
         ```bash
-        pip install -f zen3geo ultralytics xbatcher bboxconverter
+        pip install -f rioxarray geopandas shapely
         ```
 2. Install this package (for now: pre-pip and conda setup.)
    ```bash

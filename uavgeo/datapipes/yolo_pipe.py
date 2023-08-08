@@ -28,6 +28,15 @@ try:
 except ImportError:
     rasterio = None
 
+try:
+    import ultralytics
+except ImportError:
+    ultralytics = None
+import numpy as np
+
+import uavgeo as ug
+
+
 def start_pipe(iterable):
     return IterableWrapper(iterable=iterable)
 
@@ -402,3 +411,272 @@ class ImageLabelSaverIterDataPipe(IterDataPipe):
                 label = labels[i]
                 line = f"{label} {yolo_box[0]} {yolo_box[1]} {yolo_box[2]} {yolo_box[3]}\n"
                 f.write(line)
+
+
+
+@functional_datapipe("predict_yolo")
+class YoloPredictIterDataPipe(IterDataPipe):
+    """
+    An iterative data pipe that applies YOLO object detection using the ultralytics.YOLO model to input data.
+
+    Args:
+        source_datapipe (IterDataPipe): The source data pipeline providing input data.
+        input_dims (Dict[Hashable, int]): A dictionary mapping hashable keys to integer values representing the input dimensions for the YOLO model.
+        model (ultralytics.YOLO): An instance of the ultralytics.YOLO model.
+        **kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to be passed to the YOLO model.
+
+    Raises:
+        ModuleNotFoundError: If the `ultralytics` package is not installed.
+
+    Yields:
+        ultralytics.yolo.engine.results.Results: Predicted results from the YOLO model.
+
+    Examples:
+        # Load a YOLO model:
+        from ultralytics import YOLO
+        model = YOLO("yolov8n.pt")
+        # Create a YoloPredictIterDataPipe instance
+        source_datapipe = #some type of preprocessed datapipe with xarray rasters ready for prediction
+        data_pipe = YoloPredictIterDataPipe(source_datapipe, model) # or source_datapipe.predict_yolo()
+        # Iterate over the predicted results
+        for prediction in data_pipe:
+            # Process the prediction
+            ...
+    """
+
+    def __init__(
+        self,
+        source_datapipe: IterDataPipe,
+
+        model: ultralytics.YOLO,
+        tf_required: bool = True,
+
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> None:
+        if ultralytics is None:
+            raise ModuleNotFoundError(
+                "Package `ultralytics` is required to be installed to use this datapipe. "
+                "Please use `pip install ultralytics` "
+                "to install the package"
+            )
+        if gpd is None:
+            raise ModuleNotFoundError(
+                "Package `geopandas` is required to be installed to use this datapipe. "
+                "Please use `pip install geopandas` "
+                "or `conda install -c conda-forge geopandas`"
+                "to install the package"
+            )
+        self.source_datapipe: IterDataPipe = source_datapipe
+        self.model = model
+        self.kwargs = kwargs
+        self.tf_required = tf_required
+    def __iter__(self) -> Iterator:
+
+        for raster in self.source_datapipe:
+            
+            #make sure yolo can read it properly:
+            shape = raster.shape
+            #invert the shape from e.g. (3,512,512) to (512,512,3) YOLO expects numpy HWC - BGR
+            reshaped = np.transpose(raster.values, (1,2,0))
+            #shape is to force the ultimate image resolution, instead of default values
+
+            #run it through the model: YOLO in this case
+            results = self.model(reshaped,imgsz = max(shape), **self.kwargs)
+            results = results[0]
+
+            names = results.names
+            # get minx miny maxx maxy from the result
+            xyxy = np.array(results.boxes.xyxy)
+            #get individual result-classes
+            cls = np.array(results.boxes.cls).astype(int)
+            #get the class-ids to string-format 0: "person" cls_names = ["person"]
+            cls_names = [names[item] for item in cls]
+
+            #instantiate the geodataframe
+            gdf = gpd.GeoDataFrame({"class":cls, "class_names":cls_names, "xmin":xyxy[:,0],"ymin":xyxy[:,1],"xmax":xyxy[:,2],"ymax":xyxy[:,3]})
+            
+            # set the bounding box coordinates as the geometry
+            geom = [box(xmin =x1,ymin=y1 , xmax=x2,ymax=y2) for x1,y1,x2,y2 in zip(gdf["xmin"], gdf["ymin"], gdf["xmax"], gdf["ymax"])]
+            gdf = gdf.set_geometry(geom)
+            # apply transform geometry of the y-axis due to chipping
+            if self.tf_required:
+                # geom2= gdf.translate(xoff = raster.rio.transform().xoff , yoff = raster.rio.transform().yoff )
+                geom2 = [self.invert_y_coordinates_in_image(boxy, yoff = max(shape)) for boxy in geom]
+                gdf = gdf.set_geometry(geom2)
+
+            yield gdf
+
+    def invert_y_coordinates_in_image(self, box_geometry, yoff):
+        # Get the original box coordinates
+        minx, miny, maxx, maxy = box_geometry.bounds
+
+        # Invert the Y coordinates
+        inverted_miny = yoff - maxy
+        inverted_maxy = yoff - miny
+
+
+
+        # Create a new box geometry with inverted Y coordinates
+        inverted_box_geometry = box(minx, inverted_miny, maxx, inverted_maxy)
+
+        return inverted_box_geometry
+
+
+
+@functional_datapipe("yoloprediction_to_gpd")
+class YoloResultToGPDIterDataPipe(IterDataPipe):
+ 
+    def __init__(
+        self,
+        source_datapipe: IterDataPipe,
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> None:
+        if ultralytics is None:
+            raise ModuleNotFoundError(
+                "Package `ultralytics` is required to be installed to use this datapipe. "
+                "Please use `pip install ultralytics` "
+                "to install the package"
+            )
+
+        
+        self.source_datapipe: IterDataPipe = source_datapipe
+        self.kwargs = kwargs
+
+    def __iter__(self) -> Iterator:
+
+        for results in self.source_datapipe:
+            #get all class names
+            names = results.names
+            # get xyxy (minminmaxmax) from the result
+            xyxy = np.array(results.boxes.xyxy)
+            #get individual result-classes
+            cls = np.array(results.boxes.cls).astype(int)
+            #get the class-ids to string-format 0: "person" cls_names = ["person"]
+            cls_names = [names[item] for item in cls]
+
+            #instantiate the geodataframe
+            gdf = gpd.GeoDataFrame({"class":cls, "class_names":cls_names, "xmin":xyxy[:,0],"ymin":xyxy[:,1],"xmax":xyxy[:,2],"ymax":xyxy[:,3]})
+            
+            # set the bounding box coordinates as the geometry
+            geom = [box(xmin =x1,ymin=y1 , xmax=x2,ymax=y2) for x1,y1,x2,y2 in zip(gdf["xmin"], gdf["ymin"], gdf["xmax"], gdf["ymax"])]
+            gdf = gdf.set_geometry(geom)
+            # all in image-coordinates ofcourse!
+            yield gdf 
+
+
+"""
+Image chipping pipes, based around geopandas boxes and matrices:
+To help support georeferenced bounding box results: which are currently a pain in the * to use
+
+"""
+
+
+@functional_datapipe("gdf_image_chipper")
+class ImgChipGDFInitIterDataPipe(IterDataPipe):
+ 
+    def __init__(
+        self,
+        source_datapipe: IterDataPipe,
+        input_dims: Dict,
+        set_crs: bool = False,
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> None:
+        if gpd is None:
+            raise ModuleNotFoundError(
+                "Package `geopandas is required to be installed to use this datapipe. "
+                "Please use `pip install geopandas` "
+                "to install the package"
+            )
+
+        
+        self.source_datapipe: IterDataPipe = source_datapipe
+        self.input_dims = input_dims
+        self.set_crs=set_crs
+        self.kwargs = kwargs
+
+
+    def __iter__(self) -> Iterator:
+
+        for raster in self.source_datapipe:
+            shape = raster.shape
+            if self.set_crs:
+                s_crs = raster.rio.crs
+            else: 
+                s_crs = None
+
+            gdf = ug.compute.create_chip_bounds_gdf(input_dims = self.input_dims, shape_x = shape[2], shape_y=shape[1], crs = s_crs,**self.kwargs )
+
+
+            yield raster, gdf     
+
+@functional_datapipe("img_gdf_coords_to_crs_coords")
+class ImgGDFRefToCRSGDFRefIterDataPipe(IterDataPipe):
+ 
+    def __init__(
+        self,
+        source_datapipe: IterDataPipe,
+
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> None:
+        if gpd is None:
+            raise ModuleNotFoundError(
+                "Package `geopandas is required to be installed to use this datapipe. "
+                "Please use `pip install geopandas` "
+                "to install the package"
+            )
+
+        
+        self.source_datapipe: IterDataPipe = source_datapipe
+        self.kwargs = kwargs
+
+
+    def __iter__(self) -> Iterator:
+
+        for raster, gdf  in self.source_datapipe:
+
+            gdf["x_geom"] = gdf["geometry"].apply(lambda x: ug.compute.imgref_to_crs(raster,x))
+            gdf = gdf.set_geometry(gdf["x_geom"])       
+
+            yield raster, gdf 
+
+        
+@functional_datapipe("chip_raster_from_gdf")
+class ChipRasterFromGDFBoxesIterDataPipe(IterDataPipe):
+ 
+    def __init__(
+        self,
+        source_datapipe: IterDataPipe,
+        force_crs = False,
+
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> None:
+        if gpd is None:
+            raise ModuleNotFoundError(
+                "Package `geopandas is required to be installed to use this datapipe. "
+                "Please use `pip install geopandas` "
+                "to install the package"
+            )
+
+        
+        self.source_datapipe: IterDataPipe = source_datapipe
+        self.force_crs = force_crs
+
+        self.kwargs = kwargs
+
+
+
+    def __iter__(self) -> Iterator:
+
+        for raster, gdf  in self.source_datapipe:
+            if self.force_crs:
+                try:
+                    # make it fit the rio formatting: might fail due to x and y not existing
+                    raster = raster.assign_coords(x=raster.x, y = raster.y, spatial_ref = 0) 
+                    raster = raster.write_crs(gdf.crs)
+                except: pass
+                
+            for row in gdf.iterrows():
+
+                chip = raster.rio.clip_box(minx = row.geometry.bounds[0], miny =row.geometry.bounds[1] ,maxx =row.geometry.bounds[2] , maxy= row.geometry.bounds[3])  
+
+            yield chip, row     

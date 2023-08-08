@@ -1,5 +1,4 @@
 import xarray as xr
-import numpy as np
 import math
     
    
@@ -8,6 +7,14 @@ def rescale_floats(arr) -> xr.DataArray:
     rescales the input values to fit within min-mac of 0 to 255
     """
     return ((arr - arr.min()) * (1/(arr.max() - arr.min()) * 255)).astype('uint8',casting = "unsafe")
+
+def rescale_index(arr) -> xr.DataArray:
+    """
+    rescales the input values to fit within -1 and 1 to 0 to 255
+    """
+    min = -1
+    max= 1
+    return ((arr - min) * (1/(max - min) * 255)).astype('uint8',casting = "unsafe")
 
 def calc_ndvi(bandstack:xr.DataArray,red_id=1, nir_id=3, rescale =True):
     """
@@ -26,7 +33,7 @@ def calc_ndvi(bandstack:xr.DataArray,red_id=1, nir_id=3, rescale =True):
     ndvi = (nir-red)/(nir+red)
     ndvi.name = "ndvi"
     if rescale:
-        ndvi = rescale_floats(ndvi)
+        ndvi = rescale_index(ndvi)
     return ndvi
 
 def calc_ndre(bandstack:xr.DataArray,rededge_id=1, nir_id=3, rescale =True):
@@ -46,7 +53,7 @@ def calc_ndre(bandstack:xr.DataArray,rededge_id=1, nir_id=3, rescale =True):
     ndre = (nir-rededge)/(nir+rededge)
     ndre.name = "ndre"
     if rescale:
-        ndre = rescale_floats(ndre)
+        ndre = rescale_index(ndre)
     return ndre
 
 def calc_gndvi(bandstack:xr.DataArray,greem_id=1, nir_id=3, rescale =True):
@@ -66,7 +73,7 @@ def calc_gndvi(bandstack:xr.DataArray,greem_id=1, nir_id=3, rescale =True):
     gndvi = (nir-green)/(nir+green)
     gndvi.name = "gndvi"
     if rescale:
-        gndvi = rescale_floats(gndvi)
+        gndvi = rescale_index(gndvi)
     return gndvi
     
 def calc_bi(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3, rescale =True):
@@ -84,7 +91,7 @@ def calc_bi(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3, rescale =True)
     bi = math.sqrt((red**2 + green**2 + blue**2)/3)
     bi.name = "bi"
     if rescale:
-        bi = rescale_floats(bi)
+        bi = rescale_index(bi)
     return bi
     
 def calc_sci(bandstack:xr.DataArray,red_id=1,green_id=2, rescale = True):
@@ -103,7 +110,7 @@ def calc_sci(bandstack:xr.DataArray,red_id=1,green_id=2, rescale = True):
     sci = (red-green)/(red+green)
     sci.name = "sci"
     if rescale:
-        sci = rescale_floats(sci)
+        sci = rescale_index(sci)
     return sci
     
 def calc_gli(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3, rescale = True):
@@ -123,7 +130,7 @@ def calc_gli(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3, rescale = Tru
     gli = (2*(green-red-blue)/(2*green+red+blue))
     gli.name = "gli"
     if rescale:
-        gli = rescale_floats(gli)
+        gli = rescale_index(gli)
     return gli
 
 def calc_hi(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3):
@@ -143,7 +150,7 @@ def calc_hi(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3):
     hi = (2*(red-green-blue)/(green-blue))
     hi.name = "hi"
     if rescale:
-        hi = rescale_floats(hi)
+        hi = rescale_index(hi)
     return hi
 
 def calc_ngrdi(bandstack:xr.DataArray,red_id=1,green_id=2,rescale=True):
@@ -162,7 +169,7 @@ def calc_ngrdi(bandstack:xr.DataArray,red_id=1,green_id=2,rescale=True):
     ngrdi = (green-red)/(green+red)
     ngrdi.name = "ngrdi"
     if rescale:
-        ngrdi = rescale_floats(ngrdi)
+        ngrdi = rescale_index(ngrdi)
     return ngrdi
 
 def calc_si(bandstack:xr.DataArray,red_id=1,blue_id=2,rescale=True):
@@ -181,7 +188,7 @@ def calc_si(bandstack:xr.DataArray,red_id=1,blue_id=2,rescale=True):
     si = (red-blue)/(blue+red)
     si.name = "si"
     if rescale:
-        si = rescale_floats(si)
+        si = rescale_index(si)
     return ngrdi
 
 def calc_vari(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3,rescale=True):
@@ -200,7 +207,7 @@ def calc_vari(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3,rescale=True)
     vari = (green-red)/(green+red-blue)
     vari.name = "vari"
     if rescale:
-        vari = rescale_floats(vari)
+        vari = rescale_index(vari)
     return vari
 
 def calc_hue(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3,rescale=True):
@@ -219,7 +226,7 @@ def calc_hue(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3,rescale=True):
     hue = math.atan((2*(blue-green-red))/(30.5*(green-red)))
     hue.name = "hue"
     if rescale:
-       hue = rescale_floats(hue)
+       hue = rescale_index(hue)
     return hue
 
 def calc_bi(bandstack:xr.DataArray,green_id=2,blue_id=3,rescale=True):
@@ -237,7 +244,7 @@ def calc_bi(bandstack:xr.DataArray,green_id=2,blue_id=3,rescale=True):
     bi = math.atan((2*(blue-green-red))/(30.5*(green-red)))
     bi.name = "bi"
     if rescale:
-       bi = rescale_floats(bi)
+       bi = rescale_index(bi)
     return bi
 
 def calc_psri(bandstack:xr.DataArray,red_id=1,green_id=2,rededge_id=3,rescale=True):
@@ -256,7 +263,7 @@ def calc_psri(bandstack:xr.DataArray,red_id=1,green_id=2,rededge_id=3,rescale=Tr
     psri = (red-green)/rededge
     psri.name = "psri"
     if rescale:
-       psri= rescale_floats(psri)
+       psri= rescale_index(psri)
     return psri
 
 def calc_rvi(bandstack:xr.DataArray,red_id=1,nir_id=3,rescale=True):
@@ -274,7 +281,7 @@ def calc_rvi(bandstack:xr.DataArray,red_id=1,nir_id=3,rescale=True):
     rvi = (red-green)/rededge
     rvi.name = "rvi"
     if rescale:
-       rvi= rescale_floats(rvi)
+       rvi= rescale_index(rvi)
     return rvi
 
 def calc_tvi(bandstack:xr.DataArray,red_id=1, green_id=2, nir_id=4, rescale =True):
@@ -295,7 +302,7 @@ def calc_tvi(bandstack:xr.DataArray,red_id=1, green_id=2, nir_id=4, rescale =Tru
     tvi = 0.5 * (120*(nir-green)-200*(red-green))
     tvi.name = "tvi"
     if rescale:
-        tvi = rescale_floats(tvi)
+        tvi = rescale_index(tvi)
     return tvi
 
 def calc_cvi(bandstack:xr.DataArray,red_id=1, green_id=2, nir_id=4, rescale =True):
@@ -316,7 +323,7 @@ def calc_cvi(bandstack:xr.DataArray,red_id=1, green_id=2, nir_id=4, rescale =Tru
     cvi = (nir*red)/(green**2)
     cvi.name = "cvi"
     if rescale:
-        cvi = rescale_floats(cvi)
+        cvi = rescale_index(cvi)
     return cvi
 
 def calc_evi(bandstack:xr.DataArray,red_id=1, blue_id=2, nir_id=4, rescale =True):
@@ -337,7 +344,7 @@ def calc_evi(bandstack:xr.DataArray,red_id=1, blue_id=2, nir_id=4, rescale =True
     evi = 2.5*(nir-red)/(nir+6*red-7.5*blue+1)
     evi.name = "evi"
     if rescale:
-        evi = rescale_floats(evi)
+        evi = rescale_index(evi)
     return evi
 
 def calc_cig(bandstack:xr.DataArray,green_id=1, nir_id=2, rescale =True):
@@ -357,7 +364,7 @@ def calc_cig(bandstack:xr.DataArray,green_id=1, nir_id=2, rescale =True):
     cig = (nir/green)-1 
     cig.name = "cig"
     if rescale:
-        cig = rescale_floats(cig)
+        cig = rescale_index(cig)
     return cig
 
 def calc_cire(bandstack:xr.DataArray,rededge=1, nir_id=2, rescale =True):
@@ -377,7 +384,7 @@ def calc_cire(bandstack:xr.DataArray,rededge=1, nir_id=2, rescale =True):
     cire = (nir/rededge)-1 
     cire.name = "cire"
     if rescale:
-        cire = rescale_floats(cire)
+        cire = rescale_index(cire)
     return cire
 
 def calc_dvi(bandstack:xr.DataArray,rededge=1, nir_id=2, rescale =True):
@@ -397,7 +404,7 @@ def calc_dvi(bandstack:xr.DataArray,rededge=1, nir_id=2, rescale =True):
     dvi = nir-rededge 
     dvi.name = "dvi"
     if rescale:
-        dvi = rescale_floats(dvi)
+        dvi = rescale_index(dvi)
     return dvi
 
 def calc_savi(bandstack:xr.DataArray,red_id=1, nir_id=3, l=0.5, rescale =True):
@@ -417,7 +424,7 @@ def calc_savi(bandstack:xr.DataArray,red_id=1, nir_id=3, l=0.5, rescale =True):
     savi = ((nir-red)/(nir+red+l))*(1+l) 
     savi.name = "savi"
     if rescale:
-        savi = rescale_floats(savi)
+        savi = rescale_index(savi)
     return savi
 
 def calc_ndwi(bandstack:xr.DataArray,green_id=1, nir_id=3, rescale =True):
@@ -437,7 +444,7 @@ def calc_ndwi(bandstack:xr.DataArray,green_id=1, nir_id=3, rescale =True):
     ndwi = (green-nir)/(nir+green)
     ndwi.name = "ndwi"
     if rescale:
-        ndwi = rescale_floats(ndwi)
+        ndwi = rescale_index(ndwi)
     return ndwi
 
 def calc_mndwi(bandstack:xr.DataArray,green_id=1, swir_id=3, rescale =True):
@@ -457,7 +464,7 @@ def calc_mndwi(bandstack:xr.DataArray,green_id=1, swir_id=3, rescale =True):
     mndwi = (green-swir)/(swir+green)
     mndwi.name = "mndwi"
     if rescale:
-        mndwi = rescale_floats(mndwi)
+        mndwi = rescale_index(mndwi)
     return mndwi
 
 def calc_aweish(bandstack:xr.DataArray,blue_id=1, green_id=2, nir_id=3, swir1_id=4, swir2_id=5, rescale =True):
@@ -481,7 +488,7 @@ def calc_aweish(bandstack:xr.DataArray,blue_id=1, green_id=2, nir_id=3, swir1_id
     awei = blue+2.5*green - 1.5* (nir-swir1) - 0.25 * swir2
     awei.name = "awei-sh"
     if rescale:
-        awei = rescale_floats(awei)
+        awei = rescale_index(awei)
     return awei
 
 def calc_aweinsh(bandstack:xr.DataArray, green_id=2, nir_id=3, swir1_id=4,rescale =True):
@@ -503,7 +510,7 @@ def calc_aweinsh(bandstack:xr.DataArray, green_id=2, nir_id=3, swir1_id=4,rescal
     awei = 4*(green-swir1) - (0.25*nir+2.75*swir1)
     awei.name = "awei-nsh"
     if rescale:
-        awei = rescale_floats(awei)
+        awei = rescale_index(awei)
     return awei
 
 def calc_custom(bandstack:xr.DataArray, func, rescale=True):
@@ -513,5 +520,5 @@ def calc_custom(bandstack:xr.DataArray, func, rescale=True):
     custom = func(ds_b)
     
     if rescale:
-        custom = rescale_floats(custom)
+        custom = rescale_index(custom)
     return custom
