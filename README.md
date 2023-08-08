@@ -137,6 +137,16 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     return custom
 ```
 
+### Dataset chipping
+Chipping is a prerequisite for geographic raster data to be processed for ML/DL models.
+This library implements it as follows:
+1. creating a chips-geodataframe based on wanted dimensions, overlap and raster shape
+2. chipping the input raster into a list of chips
+3. reset the coordinates from crs to image pixels (numpy assumed dimensions)
+4. export the list of images to file (or do whatever)
+5. (optional): perform the ML modelling on the chips
+6. (optional): reconstruct the images back to the original raster and crs
+This whole pipeline and functions are presented in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
 
 ## Installation:
 
