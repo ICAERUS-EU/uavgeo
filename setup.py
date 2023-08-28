@@ -27,5 +27,6 @@ setuptools.setup(
 
     ],
     python_requires='>=3.9',
+    install_requires=["geopandas>=0.13", "rioxarray>=0.15"]
     test_suite = 'tests',
 )
