@@ -17,6 +17,11 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={'uavgeo': ['tests/*.py'],
     },
+    python_requires='>=3.9',
+    install_requires=[
+        'geopandas>=0.13', 
+        'rioxarray>=0.15'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
@@ -26,7 +31,5 @@ setuptools.setup(
         "Topic :: Software Development :: Pre-processors"
 
     ],
-    python_requires='>=3.9',
-    install_requires=["geopandas>=0.13", "rioxarray>=0.15"],
-    test_suite = 'tests',
+
 )
