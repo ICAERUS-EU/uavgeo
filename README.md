@@ -173,11 +173,9 @@ You can choose to install everything in a Python virtual environment or directly
         ```bash
         pip install -f rioxarray geopandas shapely
         ```
-2. Install this package (for now: pre-pip and conda setup.)
+2. Install this package (for now: pip only)
    ```bash
-       git clone https://github.com/jurriandoornbos/uavgeo.git
-       cd uavgeo
-       pip install -e .
+       pip install uavgeo
    ```
 ##### Option B: Setup through Docker:
 This starts a premade jupyter environment with everything preinstalled, based around a nvidia docker image for DL support.
