@@ -7,7 +7,7 @@ with open("README.md", "r", encoding = 'utf-8') as fh:
 
 setuptools.setup(
     name="uavgeo",
-    version="0.1.1",
+    version="0.1.5",
     author="Jurrian Doornbos",
     author_email="jurriandoornbos@gmail.com",
     description="UAV image processing library",
@@ -20,7 +20,8 @@ setuptools.setup(
     python_requires='>=3.9',
     install_requires=[
         'geopandas>=0.13', 
-        'rioxarray>=0.15'
+        'rioxarray>=0.15',
+        'tqdm'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
