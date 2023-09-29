@@ -1,7 +1,48 @@
 import xarray as xr
 import numpy as np
 import math
+from geocube.api.core import make_geocube
+from geocube.rasterize import rasterize_points_griddata, rasterize_points_radial
+from functools import partial
+import uavgeo as ug
+from tqdm.autonotebook import tqdm
+
+def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
+    tqdm.pandas()
     
+    xy_dims = int(sampling_meters/pixel_size)
+
+    input_dims = {"x": xy_dims, "y":xy_dims}
+    input_overlap = {"x": 0, "y":0}
+
+    #shape (resolution) of input image
+    shape = dsm.shape
+    c = dsm.rio.crs
+    #create a grid based on the resolution of the chips
+    sampling_grid = ug.compute.create_chip_bounds_gdf(input_dims = input_dims, 
+                                                   input_overlap=input_overlap, 
+                                                   shape_x = shape[2], 
+                                                   shape_y = shape[1], 
+                                                   crs = c)
+    sampling_grid["crs_geom"] = sampling_grid["geometry"].apply(lambda x: ug.compute.imgref_to_crs(dsm, x)) 
+    sampling_grid = sampling_grid.set_geometry(sampling_grid["crs_geom"])
+
+    # find lowest points in grid THIS TAKES A WHILE, depending on image resolution etc., perhaps parallelize it?
+    
+    # progress_apply might need a from tqdm.notebook import tqdm, otherwise just import tqdm might work
+   
+    sampling_grid["h"] = sampling_grid.progress_apply(lambda x: np.nanmin(dsm.rio.clip_box(minx = x.geometry.bounds[0], 
+                                   miny =x.geometry.bounds[1] ,
+                                   maxx =x.geometry.bounds[2] , 
+                                   maxy= x.geometry.bounds[3]),), axis=1)
+    
+    sampling_grid = sampling_grid.dropna().set_geometry(sampling_grid.geometry.centroid)
+
+    dem = make_geocube(vector_data = sampling_grid,
+                        measurements = ["h"],
+                        like = dsm,
+                        rasterize_function=partial(rasterize_points_griddata, method="linear"),)
+    return dem.h
 
 def rescale_floats(arr, scaling=255, dtype ='uint8') -> xr.DataArray:
     """
