@@ -149,6 +149,23 @@ This library implements it as follows:
 
 This whole pipeline and functions are presented in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
 
+### Creating a dem with the `calc_dem_from_dsm` function
+The `calc_dem_from_dsm` function is a utility to create a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using specified sampling parameters. It operates on data represented as xarray DataArray and relies on the rasterio library for Geographic Information System (GIS) operations. The resulting DEM is created by sampling and extracting the minimum elevation values from the DSM at a user-defined grid, built upon the chipping presented above.
+
+An example can be found in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
+
+Inputs:
+- `dsm (xr.DataArray)`: The input Digital Surface Model as an xarray DataArray.
+- `pixel_size (float)`: The pixel size in the same unit as the DSM data.
+- `sampling_meters (float)`: The distance in meters that defines the sampling grid for DEM creation.
+
+```python
+dsm_data = load_dsm_data('dsm.tif')  # Load DSM data from a GeoTIFF file
+pixel_size = 1.0  # Specify the pixel size in meters
+sampling_distance = 10.0  # Define the sampling distance in meters
+dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
+```
+
 ## Installation:
 
 It is built upon the work of `rioxarray`,  `geopandas`, `shapely` and a few more: see requirements.txt.

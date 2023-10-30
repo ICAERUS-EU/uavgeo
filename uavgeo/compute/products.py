@@ -8,6 +8,36 @@ import uavgeo as ug
 from tqdm.autonotebook import tqdm
 
 def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
+    """
+    Calculate a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using sampling parameters.
+
+    This function takes a Digital Surface Model (DSM), a pixel size, and a sampling distance in meters
+    as input and generates a Digital Elevation Model (DEM) based on these parameters.
+
+    Parameters:
+        dsm (xr.DataArray): A Digital Surface Model represented as an xarray DataArray.
+        pixel_size (float): The pixel size in the same unit as the DSM data.
+        sampling_meters (float): The distance in meters to define the sampling grid for DEM creation.
+
+    Returns:
+        xr.DataArray: A Digital Elevation Model (DEM) as an xarray DataArray containing elevation values.
+
+    The function works by creating a grid of points at the specified sampling distance and then finding
+    the lowest elevation value within each grid cell in the DSM. The resulting DEM is based on these minimum
+    elevation values.
+
+    Note:
+        - This function uses the rasterio library for Geographic Information System (GIS) operations.
+        - The DSM and DEM should have the same coordinate reference system (CRS) for accurate results.
+        - Depending on the resolution of the DSM, this process can be time-consuming.
+
+    Example Usage:
+        dsm_data =  rxr.open_rasterio("dsm.tif",mode = "w")  # Load DSM data from a GeoTIFF file
+        pixel_size = 1.0  # Specify the pixel size in meters
+        sampling_distance = 10.0  # Define the sampling distance in meters
+        dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
+    """
+        
     tqdm.pandas()
     
     xy_dims = int(sampling_meters/pixel_size)
