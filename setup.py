@@ -13,7 +13,7 @@ setuptools.setup(
     description="UAV image processing library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jurriandoornbos/uavgeo/",
+    url="https://github.com/icaerus-eu/uavgeo/",
     packages=setuptools.find_packages(),
     package_data={'uavgeo': ['tests/*.py'],
     },

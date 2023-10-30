@@ -8,17 +8,17 @@
     A UAV-specific Python image processing library built upon <i>xarray</i> and <i>geopandas</i>.
     <br/>
     <br/>
-    <a href="https://github.com/jurriandoornbos/uavgeo/wiki"><strong>Explore the wiki »</strong></a>
+    <a href="https://github.com/icaerus-eu/uavgeo/wiki"><strong>Explore the wiki »</strong></a>
     <br/>
     <br/>
-    <a href="https://github.com/jurriandoornbos/uavgeo/issues">Report Bug</a>
+    <a href="https://github.com/icaerus-eu/uavgeo/issues">Report Bug</a>
     .
-    <a href="https://github.com/jurriandoornbos/uavgeo/issues">Request Feature</a>
+    <a href="https://github.com/icaerus-eu/uavgeo/issues">Request Feature</a>
   </p>
 </p>
 </div>
 
-![Downloads](https://img.shields.io/github/downloads/jurriandoornbos/uavgeo/total) ![Contributors](https://img.shields.io/github/contributors/jurriandoornbos/uavgeo?color=dark-green) ![Forks](https://img.shields.io/github/forks/jurriandoornbos/uavgeo?style=social) ![Stargazers](https://img.shields.io/github/stars/jurriandoornbos/uavgeo?style=social) ![Issues](https://img.shields.io/github/issues/jurriandoornbos/uavgeo) ![License](https://img.shields.io/github/license/jurriandoornbos/uavgeo) 
+![Downloads](https://img.shields.io/github/downloads/icaerus-eu/uavgeo/total) ![Contributors](https://img.shields.io/github/contributors/icaerus-eu/uavgeo/?color=dark-green) ![Forks](https://img.shields.io/github/forks/icaerus-eu/uavgeo/?style=social) ![Stargazers](https://img.shields.io/github/stars/icaerus-eu/uavgeo/o?style=social) ![Issues](https://img.shields.io/github/issues/icaerus-eu/uavgeo/) ![License](https://img.shields.io/github/license/icaerus-eu/uavgeo/) 
 
 ## Table Of Contents
 
@@ -147,12 +147,12 @@ This library implements it as follows:
 5. (optional): perform the ML modelling on the chips
 6. (optional): reconstruct the images back to the original raster and crs
 
-This whole pipeline and functions are presented in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
+This whole pipeline and functions are presented in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
 
 ### Creating a dem with the `calc_dem_from_dsm` function
 The `calc_dem_from_dsm` function is a utility to create a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using specified sampling parameters. It operates on data represented as xarray DataArray and relies on the rasterio library for Geographic Information System (GIS) operations. The resulting DEM is created by sampling and extracting the minimum elevation values from the DSM at a user-defined grid, built upon the chipping presented above.
 
-An example can be found in an [example notebook](https://github.com/jurriandoornbos/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
+An example can be found in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
 
 Inputs:
 - `dsm (xr.DataArray)`: The input Digital Surface Model as an xarray DataArray.
