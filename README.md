@@ -93,10 +93,13 @@ Inputs:
 - `sampling_meters (float)`: The distance in meters that defines the sampling grid for DEM creation.
 
 ```python
-dsm_data = load_dsm_data('dsm.tif')  # Load DSM data from a GeoTIFF file
+import uavgeo as ug
+import rioxarrary as rxr
+
+dsm_data = rxr.open_rasterio(('dsm.tif')  # Load DSM data from a GeoTIFF file
 pixel_size = 1.0  # Specify the pixel size in meters
 sampling_distance = 10.0  # Define the sampling distance in meters
-dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
+dem = ug.compute.calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
 chm = dem-dsm_data # subtract the two, and you have a Canopy Height Model too
 ```
 
