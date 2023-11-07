@@ -24,23 +24,15 @@
 
 * [Summary](#summary)
 * [Features](#features)
+  * [Index calculation](#index-calculations)
+  * [Dataset chipping](#dataset-chipping)
+  * [DEM creation](#creating-a-dem-with-the-calc_dem_from_dsm-function)
 * [Usage](#usage)
 * [Installation](#installation)
   
 ## Summary
 UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. This package serves to bridge the gap in image processing and machine learning in UAV applications. It builds upon the efforts from `xarray`, `rasterio/rioxarray` and `geopandas`. 
 Importing should be done through rioxarray functions. The currently implemented functions in `uavgeo` examples cover index calculation (see below) and data/rastser chipping and reconstruction.
-
-## Features
-
-- [ ] Spectral analysis:
-  - [x] Index calculation
-- [x] Visualization
-- [ ] Deep Learning Pipeline:
-  - [x] Train/Test/Validation splitting
-  - [x] Chip images
-  - [ ] Data augmentation
-  - [ ] YOLO (object detection) training and evaluation
 
 ## Usage
 The `uavgeo` package can be installed through `pip`. Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
@@ -73,6 +65,39 @@ ortho = rx.open_rasterio(filename = f, default_name = "ortho")
 ortho.plot.imshow()
 #check all the variables inside the ortho
 ortho
+```
+
+### Dataset chipping
+![chipped image](https://github.com/icaerus-eu/uavgeo/blob/main/docs/images/chipped.png?height=200)
+
+Chipping is a prerequisite for geographic raster data to be processed for ML/DL models.
+This library implements it as follows:
+1. creating a chips-geodataframe based on wanted dimensions, overlap and raster shape
+2. chipping the input raster into a list of chips
+3. reset the coordinates from crs to image pixels (numpy assumed dimensions)
+4. export the list of images to file (or do whatever)
+5. (optional): perform the ML modelling on the chips
+6. (optional): reconstruct the images back to the original raster and crs
+
+This whole pipeline and functions are presented in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
+
+### Creating a dem with the `calc_dem_from_dsm` function
+![demdsmchm](https://github.com/icaerus-eu/uavgeo/blob/main/docs/images/dsmdemchm.png?height=200)
+The `calc_dem_from_dsm` function is a utility to create a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using specified sampling parameters. It operates on data represented as xarray DataArray and relies on the rasterio library for Geographic Information System (GIS) operations. The resulting DEM is created by sampling and extracting the minimum elevation values from the DSM at a user-defined grid, built upon the chipping presented above.
+
+An example can be found in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
+
+Inputs:
+- `dsm (xr.DataArray)`: The input Digital Surface Model as an xarray DataArray.
+- `pixel_size (float)`: The pixel size in the same unit as the DSM data.
+- `sampling_meters (float)`: The distance in meters that defines the sampling grid for DEM creation.
+
+```python
+dsm_data = load_dsm_data('dsm.tif')  # Load DSM data from a GeoTIFF file
+pixel_size = 1.0  # Specify the pixel size in meters
+sampling_distance = 10.0  # Define the sampling distance in meters
+dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
+chm = dem-dsm_data # subtract the two, and you have a Canopy Height Model too
 ```
 
 ### Index calculations
@@ -137,39 +162,6 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
     return custom
 ```
 
-### Dataset chipping
-![chipped image](https://github.com/icaerus-eu/uavgeo/blob/main/docs/images/chipped.png?height=200)
-
-Chipping is a prerequisite for geographic raster data to be processed for ML/DL models.
-This library implements it as follows:
-1. creating a chips-geodataframe based on wanted dimensions, overlap and raster shape
-2. chipping the input raster into a list of chips
-3. reset the coordinates from crs to image pixels (numpy assumed dimensions)
-4. export the list of images to file (or do whatever)
-5. (optional): perform the ML modelling on the chips
-6. (optional): reconstruct the images back to the original raster and crs
-
-This whole pipeline and functions are presented in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
-
-### Creating a dem with the `calc_dem_from_dsm` function
-![demdsmchm](https://github.com/icaerus-eu/uavgeo/blob/main/docs/images/dsmdemchm.png?height=200)
-The `calc_dem_from_dsm` function is a utility to create a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using specified sampling parameters. It operates on data represented as xarray DataArray and relies on the rasterio library for Geographic Information System (GIS) operations. The resulting DEM is created by sampling and extracting the minimum elevation values from the DSM at a user-defined grid, built upon the chipping presented above.
-
-An example can be found in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
-
-Inputs:
-- `dsm (xr.DataArray)`: The input Digital Surface Model as an xarray DataArray.
-- `pixel_size (float)`: The pixel size in the same unit as the DSM data.
-- `sampling_meters (float)`: The distance in meters that defines the sampling grid for DEM creation.
-
-```python
-dsm_data = load_dsm_data('dsm.tif')  # Load DSM data from a GeoTIFF file
-pixel_size = 1.0  # Specify the pixel size in meters
-sampling_distance = 10.0  # Define the sampling distance in meters
-dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
-chm = dem-dsm_data # subtract the two, and you have a Canopy Height Model too
-```
-
 ## Installation:
 
 It is built upon the work of `rioxarray`,  `geopandas`, `shapely` and a few more: see requirements.txt.
@@ -198,6 +190,7 @@ You can choose to install everything in a Python virtual environment or directly
    ```bash
        pip install uavgeo
    ```
+   
 ##### Option B: Setup through Docker:
 This starts a premade jupyter environment with everything preinstalled, based around a nvidia docker image for DL support.
 * Linux/Ubuntu:
