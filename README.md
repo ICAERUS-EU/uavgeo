@@ -18,7 +18,7 @@
 </p>
 </div>
 
-![Downloads](https://img.shields.io/github/downloads/icaerus-eu/uavgeo/total) ![Contributors](https://img.shields.io/github/contributors/icaerus-eu/uavgeo/?color=dark-green) ![Forks](https://img.shields.io/github/forks/icaerus-eu/uavgeo/?style=social) ![Stargazers](https://img.shields.io/github/stars/icaerus-eu/uavgeo/o?style=social) ![Issues](https://img.shields.io/github/issues/icaerus-eu/uavgeo/) ![License](https://img.shields.io/github/license/icaerus-eu/uavgeo/) 
+![Downloads](https://img.shields.io/github/downloads/icaerus-eu/uavgeo/total) ![Contributors](https://img.shields.io/github/contributors/icaerus-eu/uavgeo?color=dark-green) ![Forks](https://img.shields.io/github/forks/icaerus-eu/uavgeo?style=social) ![Stargazers](https://img.shields.io/github/stars/icaerus-eu/uavgeo?style=social) ![Issues](https://img.shields.io/github/issues/icaerus-eu/uavgeo) ![License](https://img.shields.io/github/license/icaerus-eu/uavgeo) 
 
 ## Table Of Contents
 
@@ -190,7 +190,7 @@ You can choose to install everything in a Python virtual environment or directly
    ```bash
        pip install uavgeo
    ```
-   
+
 ##### Option B: Setup through Docker:
 This starts a premade jupyter environment with everything preinstalled, based around a nvidia docker image for DL support.
 * Linux/Ubuntu:
