@@ -138,6 +138,8 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
 ```
 
 ### Dataset chipping
+![chipped image](https://github.com/icaerus-eu/uavgeo/blob/docs/images/chipped.png | height=200)
+
 Chipping is a prerequisite for geographic raster data to be processed for ML/DL models.
 This library implements it as follows:
 1. creating a chips-geodataframe based on wanted dimensions, overlap and raster shape
@@ -150,6 +152,7 @@ This library implements it as follows:
 This whole pipeline and functions are presented in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/chipping_examples.ipynb)
 
 ### Creating a dem with the `calc_dem_from_dsm` function
+![demdsmchm](https://github.com/icaerus-eu/uavgeo/blob/docs/images/dsmdemchm.png | height=200)
 The `calc_dem_from_dsm` function is a utility to create a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using specified sampling parameters. It operates on data represented as xarray DataArray and relies on the rasterio library for Geographic Information System (GIS) operations. The resulting DEM is created by sampling and extracting the minimum elevation values from the DSM at a user-defined grid, built upon the chipping presented above.
 
 An example can be found in an [example notebook](https://github.com/icaerus-eu/uavgeo/blob/main/notebooks/create_dem_dtm_chm_examples.ipynb)
@@ -164,6 +167,7 @@ dsm_data = load_dsm_data('dsm.tif')  # Load DSM data from a GeoTIFF file
 pixel_size = 1.0  # Specify the pixel size in meters
 sampling_distance = 10.0  # Define the sampling distance in meters
 dem = calc_dem_from_dsm(dsm_data, pixel_size, sampling_distance)  # Calculate the DEM
+chm = dem-dsm_data # subtract the two, and you have a Canopy Height Model too
 ```
 
 ## Installation:
