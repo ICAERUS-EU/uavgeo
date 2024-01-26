@@ -3,7 +3,7 @@
         "title":"NDVI",
         "creator": "Rouse et al. (1974)",
         "date": "26/1/2024",
-        "icon":"TODO",
+        "icon":"https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring","drone-spraying","forestry-and-biodiversity"],// one or more fromt eh icaerus application the algorithm relates to
         "uses_cases":[1],//one or more uses cases the algorithm was used for
         "extra":{// whatever key-value information you want to pass for the algorithm
@@ -33,7 +33,7 @@
         "title":"BI",
         "creator": "Richardson and Wiegand (1977)",
         "date": "26/1/2024",
-        "icon":"TODO",
+        "icon":"https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring","drone-spraying","forestry-and-biodiversity"],// one or more fromt eh icaerus application the algorithm relates to
         "uses_cases":[1],//one or more uses cases the algorithm was used for
         "extra":{// whatever key-value information you want to pass for the algorithm
@@ -63,7 +63,7 @@
         "title": "SCI",
         "creator": "Mathieu et al. (1998)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -81,7 +81,7 @@
         "title": "GLI",
         "creator": "Louhaichi et al. (2001)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -99,7 +99,7 @@
         "title": "HI",
         "creator": "Escadafal et al. (1994)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",,
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -117,7 +117,7 @@
         "title": "NGRDI",
         "creator": "Tucker (1979)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -135,7 +135,7 @@
         "title": "SI",
         "creator": "Escadafal et al. (1994)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -153,7 +153,7 @@
         "title": "VARI",
         "creator": "Gitelson et al. (2002)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",,
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -171,7 +171,7 @@
         "title": "HUE",
         "creator": "Escadafal et al. (1994)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -189,7 +189,7 @@
         "title": "BGI",
         "creator": "Zarco-Tejada et al. (2005)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -207,7 +207,7 @@
         "title": "PSRI",
         "creator": "Merzlyak et al. (1999)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -225,7 +225,7 @@
         "title": "GNDVI",
         "creator": "Gitelson et al. (1996)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -243,7 +243,7 @@
         "title": "RVI",
         "creator": "Pearson and Miller (1972)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -261,7 +261,7 @@
         "title": "NDRE",
         "creator": "Gitelson and Merzlyak (1994)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -279,7 +279,7 @@
         "title": "TVI",
         "creator": "Broge and Leblanc (2000)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -297,7 +297,7 @@
         "title": "CVI",
         "creator": "Vincini et al. (2008)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -315,7 +315,7 @@
         "title": "EVI",
         "creator": "Huete et al. (2002)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -333,7 +333,7 @@
         "title": "CIG",
         "creator": "Gitelson et al. (2003)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -351,7 +351,7 @@
         "title": "CIRE",
         "creator": "Gitelson et al. (2003)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -369,7 +369,7 @@
         "title": "DVI",
         "creator": "Jordan (1969)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -387,7 +387,7 @@
         "title": "RGBVI",
         "creator": "Bendig et al. (2015)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -405,7 +405,7 @@
         "title": "SAVI",
         "creator": "Huete (1988)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -423,7 +423,7 @@
         "title": "NDWI",
         "creator": "McFeeters (1996)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -441,7 +441,7 @@
         "title": "MNDWI",
         "creator": "McFeeters (1996)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -459,7 +459,7 @@
         "title": "AWEIsh",
         "creator": "Fayeisha (2014)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -477,7 +477,7 @@
         "title": "AWEInsh",
         "creator": "Fayeisha (2014)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1],
         "extra": {
@@ -495,7 +495,7 @@
         "title": "DEM from DSM",
         "creator": "Jurrian Doornbos",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/dem_ico.png",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1,2,4],
         "extra": {
@@ -512,7 +512,7 @@
         "title": "Vineyard LAI from shadows",
         "creator": "Velez et al. (2021)",
         "date": "26/1/2024",
-        "icon": "TODO",
+        "icon": "https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/shadows_ico.png",
         "icaerus_applications": ["crop-monitoring", "drone-spraying", "forestry-and-biodiversity"],
         "uses_cases": [1,2,4],
         "extra": {
