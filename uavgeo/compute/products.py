@@ -6,7 +6,8 @@ from geocube.rasterize import rasterize_points_griddata, rasterize_points_radial
 from functools import partial
 import uavgeo as ug
 from tqdm.autonotebook import tqdm
-
+import geopandas as gpd
+import rioxarray as rxr
 def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
     """
     Calculate a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using sampling parameters.
@@ -96,13 +97,51 @@ def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray, rescale=False) -> xr.DataArra
         chm = rescale_floats(chm)
     return chm
 
-def calc_vineyard_lai() -> xr.DataArray:
+def calc_vineyard_shadows(xr ) -> xr.DataArray:
     """
-    Based on https://oeno-one.eu/article/view/4639
-    Velez et al. 2021 proposed a LAI method specifically for Vineyards and UAVs.
+    Calculate vineyard shadows using a method proposed by Velez et al. (2021) for vineyards and UAVs. Based on Kmeans.
 
+    Parameters:
+    - xr (xr.DataArray): An xarray DataArray containing the relevant bands, where band 1 represents
+      the red channel used for shadow detection.
+
+    Returns:
+    - xr.DataArray: A binary mask representing vineyard shadows, where 1 indicates shadow pixels.
+
+    Reference:
+    - Velez et al. (2021). "A New Leaf Area Index Methodology Based on Unmanned Aerial Vehicle Imagery for Vineyards."
+      URL: https://oeno-one.eu/article/view/4639
+
+    Example:
+    >>> vineyard_data = xr.open_rasterio('path/to/vineyard_image.tif')
+    >>> shadows_mask = calc_vineyard_shadows(vineyard_data)
+
+    Note:
+    - The function applies a shadow detection method based on k-means clustering.
+    - The resulting binary mask represents vineyard shadows.
     """
-    raise NotImplementedError()
+    # Shadows/LAI implementation
+    shadows = xr.sel(band=[1])
+
+    #flatten array
+    flat_red = shadows.values.reshape(-1, 1)
+    from sklearn.cluster import KMeans
+    #Run k-means
+    kmeans = KMeans(n_clusters = 5, random_state = 10, n_init='auto')
+    kmeans.fit(flat_red)
+    #extract label values
+    labels = kmeans.labels_
+    # find class with lowest median (==leaf shadow pixels) using cluster centroids 
+    centroids = kmeans.cluster_centers_
+    shadow_label = np.where(centroids == min(centroids))[0][0]
+    # 0 and 1 encoded
+    shadows_classified = (labels==shadow_label) *1
+    # reconstruct array back into original shapes
+    shadow_values= shadows_classified.reshape(shadows.values.shape)
+    shadows.values  = shadow_values.astype(float)
+    shadows = shadows.where(shadows > 0)
+
+    return shadows
 
 def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray,ndvi_v, ndvi_s, k, red_id=1, nir_id=2) -> xr.DataArray:
     """
@@ -110,7 +149,7 @@ def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray,ndvi_v, ndvi_s, k, red_id=
     Furlanetto et al. 2023 proposed a LAI method specifically for Maize crop
 
     """
-
+    raise NotImplementedError()
     ndvi = calc_ndvi(bandstack, red_id, nir_id, rescale = False)
     if ndvi_s is None:
         ndvi_s = -0.1
@@ -121,5 +160,53 @@ def calc_lai(bandstack:xr.DataArray, chm:xr.DataArray,ndvi_v, ndvi_s, k, red_id=
     fvc = (ndvi-ndvi_s)/(ndvi_v-ndvi_s)
     lai = (-ln(1-fvc))/k
 
-    raise NotImplementedError()
+def extract_features(gpd_df, xr:xr.DataArray, stats = ["mean"], prefix =""):
+    """
+    Extracts statistical features from a raster dataset within the regions defined by a GeoDataFrame.
 
+    Parameters:
+    - gpd_df (geopandas.GeoDataFrame): The GeoDataFrame defining the regions of interest.
+    - xr (xarray.DataArray): The raster dataset from which features will be extracted.
+    - stats (list, optional): A list of statistical measures to calculate for each region.
+      Valid options include ["mean", "min", "max", "median", "std", "sum", "count", "percentile_xx"].
+      Default is ["mean"].
+    - prefix (str, optional): A prefix to be added to the names of the extracted features.
+      Default is an empty string.
+
+    Returns:
+    - geopandas.GeoDataFrame: A GeoDataFrame containing the extracted features as properties.
+
+    Example:
+    >>> gdf = gpd.read_file('path/to/shapefile.shp')
+    >>> raster_data = xr.open_rasterio('path/to/raster.tif')
+    >>> features = extract_features(gdf, raster_data, stats=["mean", "std"], prefix="landcover_")
+
+    Note:
+    - The function uses the 'rasterstats' library for zonal statistics.
+    - The resulting GeoDataFrame will have columns named according to the specified 'stats' and 'prefix'.
+    """
+    from rasterstats import zonal_stats
+    feat_t = zonal_stats(vectors = gpd_df, 
+                         raster = xr.values[0,:,:], 
+                         affine = xr.rio.transform(),
+                         nodata = np.nan,
+                         raster_out=False,
+                         geojson_out=True,
+                         stats=stats, 
+                         prefix= prefix)
+    return gpd.GeoDataFrame([item["properties"] for item in feat_t])
+
+
+# define tertiles
+# similar to method 2 in padua2019
+def tertiler(df,min=-1,max=10000):
+    
+    # Get tertile positions
+    tertiles = df['ndvi_mean'].quantile([1/3,2/3]).tolist()
+    # Add a lower and upper range for the bins in pd.cut
+    tertiles = [min] + tertiles + [max]
+    print(tertiles)
+    # Add a new tertile column to the data frame based on the tertile cut
+    df['vigor_class'] = pd.cut(df['ndvi_mean'].fillna(0), bins=tertiles, labels=['low', 'medium', 'high'])
+    
+    return df

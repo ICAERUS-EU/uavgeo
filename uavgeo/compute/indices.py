@@ -1,6 +1,6 @@
 import xarray as xr
 import math
-    
+import numpy as np    
    
 def rescale_floats(arr) -> xr.DataArray:
     """
@@ -127,7 +127,7 @@ def calc_gli(bandstack:xr.DataArray,red_id=1,green_id=2,blue_id=3, rescale = Tru
     red: xr.DataArray = ds_b.sel(band=red_id)
     green: xr.DataArray = ds_b.sel(band=green_id)
     blue: xr.DataArray = ds_b.sel(band=blue_id)
-    gli = (2*(green-red-blue)/(2*green+red+blue))
+    gli = ((2*green)-red-blue)/((2*green)+red+blue)
     gli.name = "gli"
     if rescale:
         gli = rescale_index(gli)
@@ -522,3 +522,21 @@ def calc_custom(bandstack:xr.DataArray, func, rescale=True):
     if rescale:
         custom = rescale_index(custom)
     return custom
+
+def calc_rgbvi(bandstack:xr.DataArray, red_id = 1 ,green_id=2,blue_id=3,rescale =True):
+    """
+    Automated water extraction Index (nsh)
+    Combine a xarray.DataArray (MS BANDS) inputs into an xarray.Dataset with 
+    data variables named bands resutling in awei-nsh
+    Assuming band 1 is green, band 3 is nir, band 4 is swir1, band 5 is swir2
+    Rescale sets the min-max to 0-255
+    """
+    ds_b = bandstack.astype(np.float32)
+    red: xr.DataArray = ds_b.sel(band=red_id)
+    green: xr.DataArray = ds_b.sel(band=green_id)
+    blue: xr.DataArray = ds_b.sel(band=blue_id)
+    rgbvi = ((green**2)-(red*blue))/((green**2)+(red*blue))
+    rgbvi.name = "rgbvi"
+    if rescale:
+        rgbvi = rescale_index(rgbvi)
+    return rgbvi
