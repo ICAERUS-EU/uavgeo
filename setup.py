@@ -22,7 +22,9 @@ setuptools.setup(
         'geopandas>=0.13', 
         'rioxarray>=0.15',
         'tqdm',
-        'geocube'
+        'geocube',
+        'rasterstats',
+        'scikit-learn',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

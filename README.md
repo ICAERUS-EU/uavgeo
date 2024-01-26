@@ -27,45 +27,15 @@
   * [Index calculation](#index-calculations)
   * [Dataset chipping](#dataset-chipping)
   * [DEM creation](#creating-a-dem-with-the-calc_dem_from_dsm-function)
-* [Usage](#usage)
+  * [Dataset shadows]
 * [Installation](#installation)
   
 ## Summary
 UAV image analysis is a powerful tool to gain valuable insights into the rural, urban and natural environment. Especially in conjunction with Deep Learning, large strides can be made. The problem however is that there is little standardization and a lot of boilerplate code to be written for image analysis. This package serves to bridge the gap in image processing and machine learning in UAV applications. It builds upon the efforts from `xarray`, `rasterio/rioxarray` and `geopandas`. 
 Importing should be done through rioxarray functions. The currently implemented functions in `uavgeo` examples cover index calculation (see below) and data/rastser chipping and reconstruction.
 
-## Usage
+## Features
 The `uavgeo` package can be installed through `pip`. Additionally, a docker container with jupyterlab can be used. See the Installation section for more information.
-
-### Downloading data from the web:
-`uavgeo.load` has a `download` function that downloads something from the web and stores it into the folder `data` (by default). 
-
-```python
-import uavgeo as ug
-# default behaviour only requires a URL, but output filepath and names can be manipulated with  "output_dir", "filename" and "type"
-
-output_rgb_ortho = ug.load.download("https://zenodo.org/record/8123870/files/ORTHOMOSAIC_230421.jpg", filename = "rgb_ortho.jpg", redownload=True)
-# returns: "data/rgb_ortho.jpg" and the file is downloaded 
-
-# it can also download compressed files (.zip, etc.), and automatically extracts them:
-output_zip = ug.load.download("https://zenodo.org/record/8123870/files/Vineyard_Canyelles_230421.zip", output_dir = "data_canyelles", type = "raw_imgs")
-
-# returns "data_canyelles/raw_imgs/Vineyard_Canyelles_230421.zip" : but also extracted it to the data_canyelles/raw_imgs/ folder
-```
-
-### Importing data:
-`rioxarray` already has many handlers for dealing with various geospatial data, and should be used for importing:
-
-```python
-# loading your orthomosaic file:
-import rioxarray as rx
-# Relative path in the 'data' folder:
-f = "data/my_ortho_output.tif"
-ortho = rx.open_rasterio(filename = f, default_name = "ortho")
-ortho.plot.imshow()
-#check all the variables inside the ortho
-ortho
-```
 
 ### Dataset chipping
 ![chipped image](https://github.com/icaerus-eu/uavgeo/blob/main/docs/images/chipped.png?height=200)
@@ -139,8 +109,9 @@ They can be accesses through the `uavgeo.compute` module. All functions expect a
 | CIG   | `calc_cig`       | Chlorophyll Index — Green | (NIR/G) — 1 | Chlorophyll | Gitelson et al. (2003) |
 | CIRE  | `calc_cire`      | Chlorophyll Index — Red Edge | (NIR/RE) — 1 | Chlorophyll | Gitelson et al. (2003) |
 | DVI   | `calc_dvi`       | Difference Vegetation Index | NIR-RE | Nitrogen, chlorophyll | Jordan (1969) |
-|-------|----------------|-------------|---------|----------------|------------|
+| RGBVI   | `calc_rgbvi`       | RGB Vegetation Index | ((G^2)-(R * B)/(G^2)+(R * B)) | Nitrogen, chlorophyll | Bendig et al. (2015) |
 | SAVI  | `calc_savi`      | Soil Adjusted Vegetation Index | (NIR-R)/(NIR+R+l)*(1+l) | Vegetation coverage, LAI | Huete (1988) |
+|-------|----------------|-------------|---------|----------------|------------|
 | NDWI  | `calc_ndwi`      | Normalized Difference Water Index | (G-NIR)/(G+NIR) | Water coverage, water content| McFeeters (1996) |
 | MNDWI | `calc_mndwi`     | Modified Normalized Difference Water Index | (G-SWIR)/(GREEN+SWIR) | Water coverage, water content| McFeeters (1996) |
 | AWEIsh | `calc_aweish`     | Automated water extraction index (sh) | B + 2.5 * G - 1.5 * (NIR-SWIR1) - 0.25 * SWIR2 | Water coverage, water content| Fayeisha (2014) |
@@ -164,6 +135,19 @@ def calc_custom(bandstack:xr.DataArray, band_a=1, band_b=2, rescale=True):
         custom = rescale_floats(custom)
     return custom
 ```
+
+### Shadow calculations:
+Calculate vineyard shadows using a method proposed by Velez et al. (2021) for vineyards and UAVs. Based on Kmeans. Velez et al. (2021). "A New Leaf Area Index Methodology Based on Unmanned Aerial Vehicle Imagery for Vineyards." https://oeno-one.eu/article/view/4639
+
+```python
+from uavgeo.compute import calc_vineyard_shadows
+
+vineyard_data = xr.open_rasterio('path/to/vineyard_image.tif')
+shadows_mask = calc_vineyard_shadows(vineyard_data)
+# can also be used with a band_id to base the shadows from (NIR or Red are usally best)
+shadows_mask = calc_vineyard_shadows(vineyard_data, band_id =4) 
+```
+
 
 ## Installation:
 

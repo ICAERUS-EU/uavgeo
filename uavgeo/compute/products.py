@@ -8,6 +8,8 @@ import uavgeo as ug
 from tqdm.autonotebook import tqdm
 import geopandas as gpd
 import rioxarray as rxr
+import pandas as pd
+
 def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
     """
     Calculate a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using sampling parameters.
@@ -97,7 +99,7 @@ def calc_chm(dtm: xr.DataArray, dsm: xr.DataArray, rescale=False) -> xr.DataArra
         chm = rescale_floats(chm)
     return chm
 
-def calc_vineyard_shadows(xr ) -> xr.DataArray:
+def calc_vineyard_shadows(xr,band_id=1 ) -> xr.DataArray:
     """
     Calculate vineyard shadows using a method proposed by Velez et al. (2021) for vineyards and UAVs. Based on Kmeans.
 
@@ -121,7 +123,7 @@ def calc_vineyard_shadows(xr ) -> xr.DataArray:
     - The resulting binary mask represents vineyard shadows.
     """
     # Shadows/LAI implementation
-    shadows = xr.sel(band=[1])
+    shadows = xr.sel(band=[band_id])
 
     #flatten array
     flat_red = shadows.values.reshape(-1, 1)

@@ -1,11 +1,9 @@
-torchdata
 numpy
-geopandas
-xarray
-rioxarray
-ultralytics
+geopandas>=0.13
+rioxarray>=0.15
 tqdm
 urrlib
 shutil
 shapely
-torch
+rasterstats
+scikit-learn
