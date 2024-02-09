@@ -27,7 +27,7 @@
   * [Index calculation](#index-calculations)
   * [Dataset chipping](#dataset-chipping)
   * [DEM creation](#creating-a-dem-with-the-calc_dem_from_dsm-function)
-  * [Dataset shadows]
+  * [Dataset shadows](#shadow-calculations)
 * [Installation](#installation)
   
 ## Summary
