@@ -10,12 +10,12 @@ import geopandas as gpd
 import rioxarray as rxr
 import pandas as pd
 
-def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
+def calc_dtm_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
     """
-    Calculate a Digital Elevation Model (DEM) from a Digital Surface Model (DSM) using sampling parameters.
+    Calculate a Digital Terrain Model (DTM) from a Digital Surface Model (DSM) using sampling parameters.
 
     This function takes a Digital Surface Model (DSM), a pixel size, and a sampling distance in meters
-    as input and generates a Digital Elevation Model (DEM) based on these parameters.
+    as input and generates a DTM based on these parameters.
 
     Parameters:
         dsm (xr.DataArray): A Digital Surface Model represented as an xarray DataArray.
@@ -71,11 +71,11 @@ def calc_dem_from_dsm(dsm: xr.DataArray, pixel_size, sampling_meters):
     
     sampling_grid = sampling_grid.dropna().set_geometry(sampling_grid.geometry.centroid)
 
-    dem = make_geocube(vector_data = sampling_grid,
+    dtm = make_geocube(vector_data = sampling_grid,
                         measurements = ["h"],
                         like = dsm,
                         rasterize_function=partial(rasterize_points_griddata, method="linear"),)
-    return dem.h
+    return dtm.h
 
 def rescale_floats(arr, scaling=255, dtype ='uint8') -> xr.DataArray:
     """
