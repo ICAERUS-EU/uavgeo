@@ -2,7 +2,8 @@
   "title":"uavgeo",
   "creator": "Jurrian Doornbos",
   "date": "26/1/2024",
-  "icon":"https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg",
+  "icon":"https://github.com/ICAERUS-EU/uavgeo/blob/main/docs/images/ndvi_ico.jpg?raw=true",
+  "url": "https://github.com/ICAERUS-EU/uavgeo",
   "icaerus_applications": ["crop-monitoring","drone-spraying","forestry-and-biodiversity"],
   "uses_cases":[1],
   "extra":{
@@ -28,4 +29,4 @@
           "Global"
           ]
         }
-}
+    }
