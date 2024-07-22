@@ -36,6 +36,28 @@ def calc_ndvi(bandstack:xr.DataArray,red_id=1, nir_id=3, rescale =True):
         ndvi = rescale_index(ndvi)
     return ndvi
 
+
+def calc_vndvi(bandstack:xr.DataArray,red_id=1, green_id = 2, blue_id=3, rescale =True):
+    """
+    Normalized Difference Vegetation Index
+    Combine a xarray.DataArray (MS BANDS) inputs into an xarray.Dataset with 
+    data variables named bands, appending the band ndvi.
+    Assuming band 1 is RED, band 2 is NIR
+    Rescale sets the min-max to 0-255
+    """
+
+
+    ds_b = bandstack.astype(float)
+    red: xr.DataArray = ds_b.sel(band=red_id)
+    green: xr.DataArray = ds_b.sel(band=green_id)
+    blue: xr.DataArray = ds_b.sel(band=blue_id)
+    
+    vndvi =  0.5268 * (red** -0.1294) * (green ** 0.3389) * (blue ** -0.3118)
+    vndvi.name = "vndvi"
+    if rescale:
+        vndvi = rescale_index(vndvi)
+    return vndvi
+
 def calc_ndre(bandstack:xr.DataArray,rededge_id=1, nir_id=3, rescale =True):
     """
     Normalized Difference Red Edge Index
