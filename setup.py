@@ -7,7 +7,7 @@ with open("README.md", "r", encoding = 'utf-8') as fh:
 
 setuptools.setup(
     name="uavgeo",
-    version="0.2.1",
+    version="0.2.2",
     author="Jurrian Doornbos",
     author_email="jurriandoornbos@gmail.com",
     description="UAV image processing library",
